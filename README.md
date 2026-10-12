@@ -1,20 +1,26 @@
-<p align="center"><img src="docs/assets/logo.svg" width="56" alt="MetricForge Logo"></p>
-
 # MetricForge
 
-**金融指标的生成、参考验证与可追溯交付。**
+金融指标表达式的编译、参考验证与交付控制台。
 
-[![Checks](https://github.com/00lostin00/MetricForge/actions/workflows/ci.yml/badge.svg)](https://github.com/00lostin00/MetricForge/actions/workflows/ci.yml)
-[![Python](https://img.shields.io/badge/Python-3.11%2B-406d52)](pyproject.toml)
-[![License](https://img.shields.io/badge/License-MIT-728a58)](LICENSE)
+[![Checks](https://github.com/00lostin00/MetricForge/actions/workflows/ci.yml/badge.svg)](https://github.com/00lostin00/MetricForge/actions/workflows/ci.yml) · Python 3.11+ · MIT
 
-![MetricForge 指标交付工作台](docs/assets/banner.svg)
+## 一个能编译、却不符合口径的候选
 
-[快速启动](#快速启动) · [交互工作台](#交互工作台) · [系统结构](#系统结构) · [验证记录](#验证记录) · [参考与比较](#参考与比较) · [文档](#文档)
+去年收入 100，今年 150。收入同比应为 50%，但下面第一条表达式用今年收入作分母，会得到约 33.33%。两条表达式都可以通过语法和量纲检查。
 
-收入同比用错分母，表达式仍然能编译；金额单位不统一，结果可能看起来合理。MetricForge 把指标口径写成契约，先编译受约束表达式，再用独立参考程序逐条比对；失败时保留反例，修订后重新验收。交付包含表达式、验证记录、来源、图表与 HTML 报告。
+```python
+# 错误候选：分母用了当期收入
+safe_div(revenue - lag(revenue, 1), revenue)
 
-当前提供 **净利率、营业收入同比、经营现金净利润比** 三个指标契约。默认 Replay 演示“错误候选 → 反例 → 修订 → 验收”的完整过程，不需要模型密钥。LLM 模式由模型通过工具提出候选，沿用相同验证边界。
+# 修订候选：分母使用上期收入
+safe_div(revenue - lag(revenue, 1), lag(revenue, 1))
+```
+
+MetricForge 把口径写成契约，再用独立参考程序检查数值、状态和来源。失败候选保留反例，在预算内缩减；修订后重新验收，输出表达式、验证记录、图表和 HTML 报告。
+
+![MetricForge 编译与验证控制台](docs/assets/banner.svg)
+
+当前只覆盖净利率、营业收入同比、经营现金净利润比三个契约。默认 Replay 预定义错误候选和修订策略，真实执行编译、验证及反例工具；LLM 模式的候选由模型通过工具提出。真实模型效果尚未评测。
 
 ## 快速启动
 
@@ -37,7 +43,7 @@ uv run --frozen --all-extras metricforge "新增营业收入同比，核对年�
 
 命令打印 JSON 与 HTML 报告路径。CLI 和 API 使用各自的状态目录。
 
-## 交互工作台
+## 在控制台检查一次交付
 
 ![实际运行的指标交付工作台](docs/screenshots/workbench.png)
 
@@ -47,9 +53,9 @@ uv run --frozen --all-extras metricforge "新增营业收入同比，核对年�
 4. 查看验收图表，打开完整 HTML 报告，下载交付 JSON 或 SVG 图表。
 5. 点击最近任务恢复结果；最近 10 项记录保存在当前浏览器，清空只删除本地历史。
 
-页面提供加载、错误、队列满、未配置模型与中断状态，支持手机窄屏。暂停刷新只停止页面轮询，后台任务继续执行。前端使用原生 HTML / CSS / JavaScript，静态文件由 FastAPI 同源提供，无需 Node 或前端 CDN。
+控制台将契约输入、候选验证、事件日志分成三个工程区域，使用深色工作空间和等宽表达式；手机按执行顺序堆叠。页面提供加载、错误、队列满、未配置模型与中断状态。暂停刷新只停止页面轮询，后台任务继续执行。前端使用原生 HTML / CSS / JavaScript，静态文件由 FastAPI 同源提供，无需 Node 或前端 CDN。
 
-## 系统结构
+## 编译、验证与验收的边界
 
 ```mermaid
 flowchart LR

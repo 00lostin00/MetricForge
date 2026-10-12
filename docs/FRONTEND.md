@@ -76,12 +76,14 @@ uv run --frozen --all-extras uvicorn metricforge.api:app --host 127.0.0.1 --port
 
 ## 实现位置与验证
 
-`src/metricforge/web/` 包含静态页面、样式、脚本与 SVG Logo；`api.py` 提供入口与同源静态资源。`tests/test_workbench.py` 验证静态资源、配置状态不泄露密钥，以及三个指标的真实提交、状态、反例、事件、报告和 SVG MIME。
+`src/metricforge/web/` 包含静态页面、基础样式、`console.css` 控制台布局、脚本与 SVG Logo；`api.py` 提供入口与同源静态资源。`tests/test_workbench.py` 验证静态资源、配置状态不泄露密钥，以及三个指标的真实提交、状态、反例、事件、报告和 SVG MIME。
 
 ```bash
 uv run --frozen --all-extras pytest
 uv run --frozen --all-extras ruff check .
 ```
+
+桌面布局为左侧契约与参数、中间候选及交付、右侧独立事件面板。窄屏按输入、结果、轨迹顺序呈现；大标题宣传区已移除。
 
 截图位于 `docs/screenshots/workbench.png`，从真实运行任务后的页面获取。
 
