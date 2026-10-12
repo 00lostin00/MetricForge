@@ -1,0 +1,838 @@
+{
+  "scope": "fictional data; seeded validator checks and scripted replay; not LLM accuracy",
+  "default_cases_per_metric": 48,
+  "reference_comparisons": [
+    {
+      "metric": "net_margin",
+      "seed": 20261012,
+      "cases": 48,
+      "passed": 48,
+      "compiled": true
+    },
+    {
+      "metric": "revenue_yoy",
+      "seed": 20261012,
+      "cases": 48,
+      "passed": 48,
+      "compiled": true
+    },
+    {
+      "metric": "cash_conversion",
+      "seed": 20261012,
+      "cases": 48,
+      "passed": 48,
+      "compiled": true
+    },
+    {
+      "metric": "net_margin",
+      "seed": 42,
+      "cases": 144,
+      "passed": 144,
+      "compiled": true
+    },
+    {
+      "metric": "revenue_yoy",
+      "seed": 42,
+      "cases": 144,
+      "passed": 144,
+      "compiled": true
+    },
+    {
+      "metric": "cash_conversion",
+      "seed": 42,
+      "cases": 144,
+      "passed": 144,
+      "compiled": true
+    },
+    {
+      "metric": "net_margin",
+      "seed": 1337,
+      "cases": 144,
+      "passed": 144,
+      "compiled": true
+    },
+    {
+      "metric": "revenue_yoy",
+      "seed": 1337,
+      "cases": 144,
+      "passed": 144,
+      "compiled": true
+    },
+    {
+      "metric": "cash_conversion",
+      "seed": 1337,
+      "cases": 144,
+      "passed": 144,
+      "compiled": true
+    },
+    {
+      "metric": "net_margin",
+      "seed": 314159,
+      "cases": 144,
+      "passed": 144,
+      "compiled": true
+    },
+    {
+      "metric": "revenue_yoy",
+      "seed": 314159,
+      "cases": 144,
+      "passed": 144,
+      "compiled": true
+    },
+    {
+      "metric": "cash_conversion",
+      "seed": 314159,
+      "cases": 144,
+      "passed": 144,
+      "compiled": true
+    }
+  ],
+  "total_reference_checks": 1440,
+  "passed_reference_checks": 1440,
+  "mutants": [
+    {
+      "metric": "net_margin",
+      "defect": "reversed",
+      "expression": "safe_div(revenue, net_profit)",
+      "detected": true,
+      "layer": "semantic",
+      "counterexample": {
+        "case": {
+          "id": "normal-a",
+          "current": {
+            "company": "青禾（虚构）",
+            "year": 2025,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "15000",
+            "net_profit": "1500",
+            "operating_cashflow": "1750",
+            "source": "fixture:a:2025"
+          },
+          "previous": {
+            "company": "青禾（虚构）",
+            "year": 2024,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "12000",
+            "net_profit": "1080",
+            "operating_cashflow": "1350",
+            "source": "fixture:a:2024"
+          },
+          "origin": "fixed"
+        },
+        "category": "value_mismatch",
+        "expected": {
+          "status": "ok",
+          "value": "0.1",
+          "sources": [
+            "fixture:a:2025"
+          ]
+        },
+        "actual": {
+          "status": "ok",
+          "value": "10",
+          "sources": [
+            "fixture:a:2025"
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "metric": "net_margin",
+      "defect": "extra_percent",
+      "expression": "100 * safe_div(net_profit, revenue)",
+      "detected": true,
+      "layer": "semantic",
+      "counterexample": {
+        "case": {
+          "id": "normal-a",
+          "current": {
+            "company": "青禾（虚构）",
+            "year": 2025,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "15000",
+            "net_profit": "1500",
+            "operating_cashflow": "1750",
+            "source": "fixture:a:2025"
+          },
+          "previous": {
+            "company": "青禾（虚构）",
+            "year": 2024,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "12000",
+            "net_profit": "1080",
+            "operating_cashflow": "1350",
+            "source": "fixture:a:2024"
+          },
+          "origin": "fixed"
+        },
+        "category": "value_mismatch",
+        "expected": {
+          "status": "ok",
+          "value": "0.1",
+          "sources": [
+            "fixture:a:2025"
+          ]
+        },
+        "actual": {
+          "status": "ok",
+          "value": "10.0",
+          "sources": [
+            "fixture:a:2025"
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "metric": "net_margin",
+      "defect": "wrong_field",
+      "expression": "safe_div(operating_cashflow, revenue)",
+      "detected": true,
+      "layer": "semantic",
+      "counterexample": {
+        "case": {
+          "id": "normal-a",
+          "current": {
+            "company": "青禾（虚构）",
+            "year": 2025,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "15000",
+            "net_profit": "1500",
+            "operating_cashflow": "1750",
+            "source": "fixture:a:2025"
+          },
+          "previous": {
+            "company": "青禾（虚构）",
+            "year": 2024,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "12000",
+            "net_profit": "1080",
+            "operating_cashflow": "1350",
+            "source": "fixture:a:2024"
+          },
+          "origin": "fixed"
+        },
+        "category": "value_mismatch",
+        "expected": {
+          "status": "ok",
+          "value": "0.1",
+          "sources": [
+            "fixture:a:2025"
+          ]
+        },
+        "actual": {
+          "status": "ok",
+          "value": "0.1166666666666666666666666667",
+          "sources": [
+            "fixture:a:2025"
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "metric": "net_margin",
+      "defect": "added_cash",
+      "expression": "safe_div(net_profit + operating_cashflow, revenue)",
+      "detected": true,
+      "layer": "semantic",
+      "counterexample": {
+        "case": {
+          "id": "normal-a",
+          "current": {
+            "company": "青禾（虚构）",
+            "year": 2025,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "15000",
+            "net_profit": "1500",
+            "operating_cashflow": "1750",
+            "source": "fixture:a:2025"
+          },
+          "previous": {
+            "company": "青禾（虚构）",
+            "year": 2024,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "12000",
+            "net_profit": "1080",
+            "operating_cashflow": "1350",
+            "source": "fixture:a:2024"
+          },
+          "origin": "fixed"
+        },
+        "category": "value_mismatch",
+        "expected": {
+          "status": "ok",
+          "value": "0.1",
+          "sources": [
+            "fixture:a:2025"
+          ]
+        },
+        "actual": {
+          "status": "ok",
+          "value": "0.2166666666666666666666666667",
+          "sources": [
+            "fixture:a:2025"
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "metric": "net_margin",
+      "defect": "constant",
+      "expression": "0.1",
+      "detected": true,
+      "layer": "semantic",
+      "counterexample": {
+        "case": {
+          "id": "normal-a",
+          "current": {
+            "company": "青禾（虚构）",
+            "year": 2025,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "15000",
+            "net_profit": "1500",
+            "operating_cashflow": "1750",
+            "source": "fixture:a:2025"
+          },
+          "previous": {
+            "company": "青禾（虚构）",
+            "year": 2024,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "12000",
+            "net_profit": "1080",
+            "operating_cashflow": "1350",
+            "source": "fixture:a:2024"
+          },
+          "origin": "fixed"
+        },
+        "category": "source_mismatch",
+        "expected": {
+          "status": "ok",
+          "value": "0.1",
+          "sources": [
+            "fixture:a:2025"
+          ]
+        },
+        "actual": {
+          "status": "ok",
+          "value": "0.1",
+          "sources": []
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "metric": "revenue_yoy",
+      "defect": "current_denominator",
+      "expression": "safe_div(revenue-lag(revenue,1),revenue)",
+      "detected": true,
+      "layer": "semantic",
+      "counterexample": {
+        "case": {
+          "id": "normal-a",
+          "current": {
+            "company": "青禾（虚构）",
+            "year": 2025,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "15000",
+            "net_profit": "1500",
+            "operating_cashflow": "1750",
+            "source": "fixture:a:2025"
+          },
+          "previous": {
+            "company": "青禾（虚构）",
+            "year": 2024,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "12000",
+            "net_profit": "1080",
+            "operating_cashflow": "1350",
+            "source": "fixture:a:2024"
+          },
+          "origin": "fixed"
+        },
+        "category": "value_mismatch",
+        "expected": {
+          "status": "ok",
+          "value": "0.25",
+          "sources": [
+            "fixture:a:2024",
+            "fixture:a:2025"
+          ]
+        },
+        "actual": {
+          "status": "ok",
+          "value": "0.2",
+          "sources": [
+            "fixture:a:2024",
+            "fixture:a:2025"
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "metric": "revenue_yoy",
+      "defect": "reversed_change",
+      "expression": "safe_div(lag(revenue,1)-revenue,lag(revenue,1))",
+      "detected": true,
+      "layer": "semantic",
+      "counterexample": {
+        "case": {
+          "id": "normal-a",
+          "current": {
+            "company": "青禾（虚构）",
+            "year": 2025,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "15000",
+            "net_profit": "1500",
+            "operating_cashflow": "1750",
+            "source": "fixture:a:2025"
+          },
+          "previous": {
+            "company": "青禾（虚构）",
+            "year": 2024,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "12000",
+            "net_profit": "1080",
+            "operating_cashflow": "1350",
+            "source": "fixture:a:2024"
+          },
+          "origin": "fixed"
+        },
+        "category": "value_mismatch",
+        "expected": {
+          "status": "ok",
+          "value": "0.25",
+          "sources": [
+            "fixture:a:2024",
+            "fixture:a:2025"
+          ]
+        },
+        "actual": {
+          "status": "ok",
+          "value": "-0.25",
+          "sources": [
+            "fixture:a:2024",
+            "fixture:a:2025"
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "metric": "revenue_yoy",
+      "defect": "no_subtraction",
+      "expression": "safe_div(revenue,lag(revenue,1))",
+      "detected": true,
+      "layer": "semantic",
+      "counterexample": {
+        "case": {
+          "id": "normal-a",
+          "current": {
+            "company": "青禾（虚构）",
+            "year": 2025,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "15000",
+            "net_profit": "1500",
+            "operating_cashflow": "1750",
+            "source": "fixture:a:2025"
+          },
+          "previous": {
+            "company": "青禾（虚构）",
+            "year": 2024,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "12000",
+            "net_profit": "1080",
+            "operating_cashflow": "1350",
+            "source": "fixture:a:2024"
+          },
+          "origin": "fixed"
+        },
+        "category": "value_mismatch",
+        "expected": {
+          "status": "ok",
+          "value": "0.25",
+          "sources": [
+            "fixture:a:2024",
+            "fixture:a:2025"
+          ]
+        },
+        "actual": {
+          "status": "ok",
+          "value": "1.25",
+          "sources": [
+            "fixture:a:2024",
+            "fixture:a:2025"
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "metric": "revenue_yoy",
+      "defect": "hide_decline",
+      "expression": "abs(safe_div(revenue-lag(revenue,1),lag(revenue,1)))",
+      "detected": true,
+      "layer": "semantic",
+      "counterexample": {
+        "case": {
+          "id": "zero-revenue",
+          "current": {
+            "company": "零收入样本",
+            "year": 2025,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "0",
+            "net_profit": "10",
+            "operating_cashflow": "5",
+            "source": "fixture:zero"
+          },
+          "previous": {
+            "company": "零收入样本",
+            "year": 2024,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "100",
+            "net_profit": "10",
+            "operating_cashflow": "5",
+            "source": "fixture:zero:previous"
+          },
+          "origin": "fixed"
+        },
+        "category": "value_mismatch",
+        "expected": {
+          "status": "ok",
+          "value": "-1",
+          "sources": [
+            "fixture:zero",
+            "fixture:zero:previous"
+          ]
+        },
+        "actual": {
+          "status": "ok",
+          "value": "1",
+          "sources": [
+            "fixture:zero",
+            "fixture:zero:previous"
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "metric": "revenue_yoy",
+      "defect": "wrong_offset",
+      "expression": "safe_div(revenue-lag(revenue,2),lag(revenue,2))",
+      "detected": true,
+      "layer": "static",
+      "counterexample": null,
+      "diagnostics": [
+        "lag accepts a direct money field and literal offset 1"
+      ]
+    },
+    {
+      "metric": "cash_conversion",
+      "defect": "reversed",
+      "expression": "safe_div(net_profit,operating_cashflow)",
+      "detected": true,
+      "layer": "semantic",
+      "counterexample": {
+        "case": {
+          "id": "normal-a",
+          "current": {
+            "company": "青禾（虚构）",
+            "year": 2025,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "15000",
+            "net_profit": "1500",
+            "operating_cashflow": "1750",
+            "source": "fixture:a:2025"
+          },
+          "previous": {
+            "company": "青禾（虚构）",
+            "year": 2024,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "12000",
+            "net_profit": "1080",
+            "operating_cashflow": "1350",
+            "source": "fixture:a:2024"
+          },
+          "origin": "fixed"
+        },
+        "category": "value_mismatch",
+        "expected": {
+          "status": "ok",
+          "value": "1.166666666666666666666666667",
+          "sources": [
+            "fixture:a:2025"
+          ]
+        },
+        "actual": {
+          "status": "ok",
+          "value": "0.8571428571428571428571428571",
+          "sources": [
+            "fixture:a:2025"
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "metric": "cash_conversion",
+      "defect": "wrong_denominator",
+      "expression": "safe_div(operating_cashflow,revenue)",
+      "detected": true,
+      "layer": "semantic",
+      "counterexample": {
+        "case": {
+          "id": "normal-a",
+          "current": {
+            "company": "青禾（虚构）",
+            "year": 2025,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "15000",
+            "net_profit": "1500",
+            "operating_cashflow": "1750",
+            "source": "fixture:a:2025"
+          },
+          "previous": {
+            "company": "青禾（虚构）",
+            "year": 2024,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "12000",
+            "net_profit": "1080",
+            "operating_cashflow": "1350",
+            "source": "fixture:a:2024"
+          },
+          "origin": "fixed"
+        },
+        "category": "value_mismatch",
+        "expected": {
+          "status": "ok",
+          "value": "1.166666666666666666666666667",
+          "sources": [
+            "fixture:a:2025"
+          ]
+        },
+        "actual": {
+          "status": "ok",
+          "value": "0.1166666666666666666666666667",
+          "sources": [
+            "fixture:a:2025"
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "metric": "cash_conversion",
+      "defect": "negated",
+      "expression": "-safe_div(operating_cashflow,net_profit)",
+      "detected": true,
+      "layer": "semantic",
+      "counterexample": {
+        "case": {
+          "id": "normal-a",
+          "current": {
+            "company": "青禾（虚构）",
+            "year": 2025,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "15000",
+            "net_profit": "1500",
+            "operating_cashflow": "1750",
+            "source": "fixture:a:2025"
+          },
+          "previous": {
+            "company": "青禾（虚构）",
+            "year": 2024,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "12000",
+            "net_profit": "1080",
+            "operating_cashflow": "1350",
+            "source": "fixture:a:2024"
+          },
+          "origin": "fixed"
+        },
+        "category": "value_mismatch",
+        "expected": {
+          "status": "ok",
+          "value": "1.166666666666666666666666667",
+          "sources": [
+            "fixture:a:2025"
+          ]
+        },
+        "actual": {
+          "status": "ok",
+          "value": "-1.166666666666666666666666667",
+          "sources": [
+            "fixture:a:2025"
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "metric": "cash_conversion",
+      "defect": "hide_negative",
+      "expression": "abs(safe_div(operating_cashflow,net_profit))",
+      "detected": true,
+      "layer": "semantic",
+      "counterexample": {
+        "case": {
+          "id": "negative-cashflow",
+          "current": {
+            "company": "负现金流样本",
+            "year": 2025,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "100",
+            "net_profit": "10",
+            "operating_cashflow": "-5",
+            "source": "fixture:negative-cash"
+          },
+          "previous": {
+            "company": "负现金流样本",
+            "year": 2024,
+            "currency": "CNY",
+            "unit": "CNY_10K",
+            "scope": "consolidated",
+            "revenue": "120",
+            "net_profit": "10",
+            "operating_cashflow": "5",
+            "source": "fixture:negative-cash:previous"
+          },
+          "origin": "fixed"
+        },
+        "category": "value_mismatch",
+        "expected": {
+          "status": "ok",
+          "value": "-0.5",
+          "sources": [
+            "fixture:negative-cash"
+          ]
+        },
+        "actual": {
+          "status": "ok",
+          "value": "0.5",
+          "sources": [
+            "fixture:negative-cash"
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "metric": "cash_conversion",
+      "defect": "raw_money",
+      "expression": "operating_cashflow",
+      "detected": true,
+      "layer": "static",
+      "counterexample": null,
+      "diagnostics": [
+        "metric contracts require a dimensionless ratio"
+      ]
+    },
+    {
+      "metric": "net_margin",
+      "defect": "dimension_add",
+      "expression": "safe_div(net_profit+1,revenue)",
+      "detected": true,
+      "layer": "static",
+      "counterexample": null,
+      "diagnostics": [
+        "addition/subtraction dimensions must agree"
+      ]
+    },
+    {
+      "metric": "net_margin",
+      "defect": "unsupported_call",
+      "expression": "eval('1')",
+      "detected": true,
+      "layer": "static",
+      "counterexample": null,
+      "diagnostics": [
+        "unsupported AST node: Call"
+      ]
+    }
+  ],
+  "mutants_detected": 17,
+  "static_mutants": 4,
+  "replays": [
+    {
+      "metric": "net_margin",
+      "decision": "accepted",
+      "candidate_count": 2,
+      "case_count": 48,
+      "shrink_changed": true,
+      "tool_calls": 8,
+      "model_turns": 0
+    },
+    {
+      "metric": "revenue_yoy",
+      "decision": "accepted",
+      "candidate_count": 2,
+      "case_count": 48,
+      "shrink_changed": true,
+      "tool_calls": 8,
+      "model_turns": 0
+    },
+    {
+      "metric": "cash_conversion",
+      "decision": "accepted",
+      "candidate_count": 2,
+      "case_count": 48,
+      "shrink_changed": true,
+      "tool_calls": 8,
+      "model_turns": 0
+    }
+  ]
+}

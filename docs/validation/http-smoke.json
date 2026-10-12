@@ -1,0 +1,10 @@
+{
+  "health": "passed",
+  "submit_poll": "passed",
+  "idempotency": "passed",
+  "conflict_409": "passed",
+  "events": "passed",
+  "artifacts": "passed",
+  "input_422": "passed",
+  "provider": "replay"
+}

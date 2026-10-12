@@ -1,0 +1,680 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MetricForge技术指南</title><style>
+body{margin:0;background:#edf3f8;color:#193147;font:16px/1.85 'Microsoft YaHei',sans-serif}
+.layout{display:grid;grid-template-columns:300px minmax(0,1040px);max-width:1400px;margin:auto}
+nav{position:sticky;top:0;height:100vh;overflow:auto;padding:24px 18px;box-sizing:border-box}
+nav ul{padding-left:16px}nav li{font-size:13px;line-height:1.5;margin:7px 0}
+main{background:white;border-radius:12px;padding:38px 46px;margin:20px 10px;min-width:0}
+h1{font-size:28px;color:#155a78}h2{border-top:2px solid #d1e0eb;padding-top:24px}
+h3{color:#245b78}a{color:#235e84}code{font:13px/1.7 Consolas,monospace;background:#edf3f8}
+pre{background:#142f44;color:#e2edf5;padding:18px;border-radius:8px;overflow:auto}
+pre code{background:transparent;color:inherit;white-space:pre}
+table{display:block;overflow:auto;border-collapse:collapse;font-size:14px;margin:20px 0}
+td,th{border:1px solid #d1dce8;padding:9px 12px;vertical-align:top}
+th{background:#e5eff6;text-align:left}tr:nth-child(even){background:#f6f8fb}
+@media(max-width:1000px){.layout{display:block}nav{position:relative;height:auto}
+nav .toc>ul>li>ul{display:none}main{margin:0;padding:20px}}
+@media print{nav{display:none}.layout{display:block}body{font-size:10pt;background:white}
+main{padding:0;margin:0}h2,h3{break-after:avoid}pre{overflow:visible}
+pre code{white-space:pre-wrap}table{display:table;font-size:8pt}tr{break-inside:avoid}}
+</style></head><body><div class="layout"><nav><strong>MetricForge · 技术指南</strong><div class="toc">
+<ul>
+<li><a href="#1">1. 环境、运行与第一次演示</a><ul>
+<li><a href="#11">1.1 本地环境</a></li>
+<li><a href="#12">1.2 应当看到什么</a></li>
+<li><a href="#13">1.3 其他两个指标</a></li>
+<li><a href="#14">1.4 验证命令</a></li>
+<li><a href="#15-api">1.5 API操作</a></li>
+</ul>
+</li>
+<li><a href="#2">2. 源码结构与阅读顺序</a><ul>
+<li><a href="#21">2.1 三层权责</a></li>
+<li><a href="#22">2.2 一个请求的完整路径</a></li>
+<li><a href="#23">2.3 数据模型关系</a></li>
+</ul>
+</li>
+<li><a href="#3">3. 财务契约、单位和时间</a><ul>
+<li><a href="#31">3.1 三个教学契约</a></li>
+<li><a href="#32">3.2 元与万元</a></li>
+<li><a href="#33-decimal">3.3 Decimal的准确范围</a></li>
+<li><a href="#34">3.4 时间和实体</a></li>
+<li><a href="#35">3.5 缺失与边界状态</a></li>
+<li><a href="#36">3.6 手算例子</a></li>
+</ul>
+</li>
+<li><a href="#4-dsl">4. DSL编译与量纲推导</a><ul>
+<li><a href="#41">4.1 为什么设计表达式语言</a></li>
+<li><a href="#42-ast">4.2 AST在这里是什么</a></li>
+<li><a href="#43">4.3 量纲规则</a></li>
+<li><a href="#44">4.4 编译产物</a></li>
+<li><a href="#45">4.5 解释执行</a></li>
+<li><a href="#46">4.6 编译练习</a></li>
+</ul>
+</li>
+<li><a href="#5">5. 独立参考、对拍与缺陷检出</a><ul>
+<li><a href="#51">5.1 参考实现的独立性</a></li>
+<li><a href="#52">5.2 比较三类信息</a></li>
+<li><a href="#53">5.3 固定样本与种子样本</a></li>
+<li><a href="#54-17">5.4 17个预定义缺陷</a></li>
+<li><a href="#55-1440">5.5 1440次参考比对的统计</a></li>
+<li><a href="#56">5.6 变形测试</a></li>
+</ul>
+</li>
+<li><a href="#6">6. 反例缩减算法</a><ul>
+<li><a href="#61">6.1 为什么缩减</a></li>
+<li><a href="#62">6.2 复杂度函数</a></li>
+<li><a href="#63">6.3 候选变化</a></li>
+<li><a href="#64">6.4 保证和不保证</a></li>
+<li><a href="#65">6.5 调试练习</a></li>
+</ul>
+</li>
+<li><a href="#7-agent">7. 六类工具与Agent权责</a><ul>
+<li><a href="#71">7.1 工具契约</a></li>
+<li><a href="#72">7.2 类型与业务校验</a></li>
+<li><a href="#73">7.3 交付门槛</a></li>
+<li><a href="#74">7.4 预算</a></li>
+<li><a href="#75-replay">7.5 replay的准确含义</a></li>
+</ul>
+</li>
+<li><a href="#8-langchain">8. LangChain真实模型工具循环</a><ul>
+<li><a href="#81">8.1 模型在做什么</a></li>
+<li><a href="#82">8.2 系统指令包含什么</a></li>
+<li><a href="#83">8.3 工具消息顺序</a></li>
+<li><a href="#84">8.4 模型用量</a></li>
+<li><a href="#85">8.5 配置与真实评测</a></li>
+<li><a href="#86">8.6 桩测试验证了什么</a></li>
+<li><a href="#87">8.7 真实模型的成功定义</a></li>
+</ul>
+</li>
+<li><a href="#9">9. 持久化任务、幂等与并发</a><ul>
+<li><a href="#91">9.1 为什么需要任务</a></li>
+<li><a href="#92">9.2 状态机</a></li>
+<li><a href="#93">9.3 状态与事件原子性</a></li>
+<li><a href="#94">9.4 幂等键</a></li>
+<li><a href="#95">9.5 并发重复请求</a></li>
+<li><a href="#96">9.6 有界后台队列</a></li>
+<li><a href="#97-sqlite-wal">9.7 SQLite WAL</a></li>
+</ul>
+</li>
+<li><a href="#10">10. 图表与交付报告</a><ul>
+<li><a href="#101">10.1 图表规格</a></li>
+<li><a href="#102">10.2 缺失和负值</a></li>
+<li><a href="#103">10.3 三个交付文件</a></li>
+<li><a href="#104">10.4 验收图表练习</a></li>
+</ul>
+</li>
+<li><a href="#11_1">11. 接口、配置与故障定位</a><ul>
+<li><a href="#111">11.1 请求字段</a></li>
+<li><a href="#112">11.2 返回与错误</a></li>
+<li><a href="#113">11.3 配置目录</a></li>
+<li><a href="#114">11.4 问题排查顺序</a></li>
+<li><a href="#115-http">11.5 HTTP验证的范围</a></li>
+</ul>
+</li>
+<li><a href="#12_1">12. 尚未实现的扩展路线</a><ul>
+<li><a href="#121">12.1 自动需求解析</a></li>
+<li><a href="#122">12.2 真实模型隐藏验收</a></li>
+<li><a href="#123-dag">12.3 跨指标DAG</a></li>
+<li><a href="#124">12.4 模型微调</a></li>
+<li><a href="#125">12.5 真正的研发提效测量</a></li>
+<li><a href="#126">12.6 生产任务服务</a></li>
+</ul>
+</li>
+<li><a href="#13_1">13. 八个可执行的学习实验</a><ul>
+<li><a href="#1_1">实验1：手算错误分母</a></li>
+<li><a href="#2_1">实验2：单位变换</a></li>
+<li><a href="#3_1">实验3：数据域</a></li>
+<li><a href="#4ast">实验4：AST常量精度</a></li>
+<li><a href="#5_1">实验5：反例预算</a></li>
+<li><a href="#6_1">实验6：并发幂等</a></li>
+<li><a href="#7">实验7：真实模型修订</a></li>
+<li><a href="#8">实验8：独立新指标</a></li>
+</ul>
+</li>
+<li><a href="#14_1">14. 官方参考与版本边界</a></li>
+</ul>
+</div>
+</nav><main><h1 id="metricforge">MetricForge技术指南</h1>
+<p>运行、数据契约、模块设计与验证说明。</p>
+<h2 id="1">1. 环境、运行与第一次演示</h2>
+<h3 id="11">1.1 本地环境</h3>
+<p>Python要求3.11及以上，当前版本使用Windows和Python3.12.7。依赖由uv.lock锁定，安装命令使用 <code>--frozen --all-extras</code>，保留dev、llm和docs三组可选依赖。不依赖外部数据库、Docker或真实数据才能运行replay演示。</p>
+<pre><code class="language-powershell">cd MetricForge
+uv sync --frozen --all-extras
+uv run --frozen --all-extras metricforge &quot;新增营业收入同比，处理缺失年度和单位差异&quot; --metric revenue_yoy
+</code></pre>
+<p>命令创建持久化任务，后台执行工具流程，最后打印任务JSON和HTML报告路径。默认目录为 <code>data/demo</code>，每次任务的产物在 <code>artifacts/&lt;run_id&gt;</code>。按终端打印的位置打开report.html，可以看候选、反例和图表。</p>
+<h3 id="12">1.2 应当看到什么</h3>
+<p>任务status为completed，业务decision为accepted，provider为replay，model_turns为0，tool_calls为8，accepted_candidate为candidate-2。candidate-1使用当期收入作同比分母，未通过全部用例；candidate-2使用上年收入，通过48/48条验证。</p>
+<p>默认48条来自16条固定样本和32条由种子20261012生成的样本。这里的“用例”是候选表达式的输入上下文，不是48次模型问答。域无效样本也计入其中，主要检验系统的固定业务边界。</p>
+<h3 id="13">1.3 其他两个指标</h3>
+<pre><code class="language-powershell">uv run --frozen --all-extras metricforge &quot;新增净利率，保留亏损与缺失状态&quot; --metric net_margin
+uv run --frozen --all-extras metricforge &quot;新增经营现金净利润比，按倍展示&quot; --metric cash_conversion
+</code></pre>
+<p>净利率的第一候选倒置分子分母，正确表达式为 <code>safe_div(net_profit, revenue)</code>；现金净利润比的第一候选也倒置，正确表达式为 <code>safe_div(operating_cashflow, net_profit)</code>。正确表达式作为replay修订策略预先定义，不属于模型自主发现的结果。</p>
+<h3 id="14">1.4 验证命令</h3>
+<pre><code class="language-powershell">uv run --frozen --all-extras pytest
+uv run --frozen --all-extras ruff check .
+uv run --frozen --all-extras python tools\evaluate.py
+uv run --frozen --all-extras python tools\smoke_http.py
+</code></pre>
+<p>测试集包含75项自动化检查。评测脚本验证1440次候选-上下文参考比对，检出17个预定义缺陷变体，保存三个指标的replay修订报告。HTTP脚本启动隔离服务，检查202提交、轮询、幂等、409、事件、产物和422，结束后停止服务。</p>
+<p>75项测试、1440次参考比对和17种缺陷的含义不同，不把它们合成一个“大模型准确率”。改代码或样本后重新运行并更新记录，不机械沿用数字。</p>
+<h3 id="15-api">1.5 API操作</h3>
+<pre><code class="language-powershell">powershell -NoProfile -ExecutionPolicy Bypass -File .\start.ps1
+</code></pre>
+<p>访问 <code>http://127.0.0.1:8014/docs</code>，在POST /v1/jobs输入：</p>
+<pre><code class="language-json">{
+  &quot;requirement&quot;: &quot;新增营业收入同比，核对两期来源并输出图表&quot;,
+  &quot;metric_id&quot;: &quot;revenue_yoy&quot;,
+  &quot;provider&quot;: &quot;replay&quot;,
+  &quot;seed&quot;: 20261012,
+  &quot;generated_cases&quot;: 32
+}
+</code></pre>
+<p>提交返回202和id；GET /v1/jobs/{id}查询任务状态，GET /v1/jobs/{id}/events看事件，GET /v1/jobs/{id}/artifacts/report.html看交付报告。图表文件是chart.svg，完整结构是delivery.json。请求中额外command/sql字段会422。</p>
+<h2 id="2">2. 源码结构与阅读顺序</h2>
+<pre><code class="language-text">MetricForge/
+  pyproject.toml, uv.lock          依赖和CLI入口
+  start.ps1                       API启动，默认8014
+  fixtures/cases.json             16条人工构造的财务上下文
+  src/metricforge/
+    models.py                     所有业务数据模型
+    contracts.py                  三个业务契约及独立的replay演示策略
+    dsl.py                        AST编译、量纲和解释执行
+    reference.py                  业务域检查、独立算术参考
+    cases.py                      固定样本加载和稳定种子生成
+    validation.py                 逐例比对与反例缩减
+    charts.py                     输出规格、百分数转换、SVG
+    runtime.py                    工具分发、候选状态与验收门槛
+    drivers.py                    固定策略和真实模型工具调用驱动
+    store.py                      SQLite任务、事件与幂等记录
+    service.py                    队列、worker、执行与产物保存
+    reports.py                    HTML/JSON交付报告
+    api.py, cli.py                对外入口
+  tests/                          编译、验证、运行时、模型协议、服务和图表测试
+  tools/evaluate.py               参考比对、缺陷检出和演示产物
+  tools/smoke_http.py              实际HTTP验收
+  docs/validation/                验证结果、各指标报告
+  data/                           运行时数据库和产物
+</code></pre>
+<p>先models和contracts，再reference与dsl，再validation。搞懂数据和验证后才读runtime和drivers。最后读store/service/api，理解模型之外的任务工程。一次看完框架底层并不必要，先能解释自己的每个状态转换。</p>
+<h3 id="21">2.1 三层权责</h3>
+<p>业务契约规定“什么结果是正确的”；候选表达式提出“如何计算”；验证器判断候选是否满足当前契约和样本。Agent驱动选择工具和修订，不能改参考答案、阈值或口径。交付权限来自accept_candidate重新验证的结果，不来自模型文本。</p>
+<h3 id="22">2.2 一个请求的完整路径</h3>
+<pre><code class="language-text">RunRequest
+ -&gt; 幂等检查与容量检查
+ -&gt; SQLite queued + 同事务queued事件
+ -&gt; worker claim：running + 同事务running事件
+ -&gt; 建立固定/生成用例和运行时
+ -&gt; describe_contract
+ -&gt; propose_metric：AST编译
+ -&gt; validate_candidate：参考对拍
+ -&gt; minimize_failure：缩减反例
+ -&gt; propose_metric：修订
+ -&gt; validate / preview / accept
+ -&gt; 导出JSON、HTML、SVG
+ -&gt; completed + 同事务完成事件
+</code></pre>
+<p>failed表示系统执行异常，rejected表示Agent没有通过业务验收；completed只表示任务已经完成处理，decision才表达指标是否交付。客户端应该同时检查两者。</p>
+<h3 id="23">2.3 数据模型关系</h3>
+<p>FinancialRow保存公司、年度、币种、单位、合并口径和金额。Case包含current及可选previous。Contract保存定义、字段和域。Candidate保存表达式、编译结果和验证。Failure保存expected、actual及输入Case。ShrinkResult保存原反例和缩减反例。Delivery汇总候选、验收对象、图表、种子、用量与模式。</p>
+<p>raw value都是字符串，不把小数先变成float。EvalResult中的value是未舍入比率；ChartPoint中的value是展示数值，可能已乘100并舍入。这两个层次不能混用来做后续精确计算。</p>
+<h2 id="3">3. 财务契约、单位和时间</h2>
+<h3 id="31">3.1 三个教学契约</h3>
+<table>
+<thead>
+<tr>
+<th>metric_id</th>
+<th>计算</th>
+<th>域</th>
+<th>输出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>net_margin</td>
+<td>净利润/当期收入</td>
+<td>收入正，净利润可负</td>
+<td>比率，展示为%</td>
+</tr>
+<tr>
+<td>revenue_yoy</td>
+<td>(本期收入-上期收入)/上期收入</td>
+<td>上期收入正，年度连续，同公司</td>
+<td>比率，展示为%</td>
+</tr>
+<tr>
+<td>cash_conversion</td>
+<td>经营现金流/净利润</td>
+<td>本教学定义要求净利润正，现金流可负</td>
+<td>倍</td>
+</tr>
+</tbody>
+</table>
+<p>所有契约当前要求年度、CNY、合并口径。现金净利润比的正利润限制是本项目选择，不是唯一财务分析定义。实际业务可能为亏损年度采用标签或绝对变化，需要建立新契约再测试。</p>
+<h3 id="32">3.2 元与万元</h3>
+<p>FinancialRow.unit为CNY或CNY_10K。money(row, field)把后者乘10000，统一成元后计算。mixed-units样本中，当期15000万元、上年120000000元，对比仍是25%。若直接用15000和120000000相减会产生荒谬结果。</p>
+<p>量纲检查处理“金额与比率”的类型关系，单位归一化处理“同一金额量纲采用不同尺度”。两者相关但职责不同。两家公司的名字或财务范围不是量纲，另由业务域检查处理。</p>
+<h3 id="33-decimal">3.3 Decimal的准确范围</h3>
+<p>程序从字符串构造Decimal；除法使用Decimal上下文，输出显示按两位ROUND_HALF_UP舍入。Decimal提供显式精度和舍入，但不使所有无限小数变成有限精确表示。<a href="https://docs.python.org/3.12/library/decimal.html">Python Decimal文档</a></p>
+<p>验证比率时使用绝对/相对组合容差：<code>max(1e-12, abs(expected)*1e-12)</code>。显示层再对百分数或倍舍入，避免先舍入中间收入和利润。金额加载校验为有限且绝对值不超过1e12；fixtures为受控文件，没有开放上传导入器。</p>
+<h3 id="34">3.4 时间和实体</h3>
+<p>lag只支持直接字段与字面量偏移1。previous必须同公司且year=current.year-1，不能把2023当2025的上年。仅year连续也不够，币种和scope要匹配。缺上年、不同公司或年份断档返回missing_period。</p>
+<p>本项目不做季度、半年、TTM或重述版本比较。未来扩展需明确单季/累计、期初/期末、公布时间、币种转换日期和合并范围，不能只放宽year判断就宣布支持所有时间口径。</p>
+<h3 id="35">3.5 缺失与边界状态</h3>
+<p><code>missing_field</code>表示必需金额字段缺失；<code>missing_period</code>表示跨期上下文不满足；<code>scope_mismatch</code>表示币种/合并范围不支持；<code>nonpositive_base</code>表示业务要求的正分母不满足；<code>zero_denominator</code>表示候选自己构造了零分母；<code>evaluation_error</code>表示解释计算出现算术错误。</p>
+<p>业务域检查先于候选执行。因为三个指标已有固定契约，缺失和域策略由系统统一实现，模型不生成这些分支。本版评测不能据此宣称模型自己学会了缺失处理。一个错误表达式也可能在域无效用例上返回正确状态，因此看通过数时要同时关注有效计算用例。</p>
+<h3 id="36">3.6 手算例子</h3>
+<p>normal-a：净利率1500/15000=0.1，展示10.00%；收入同比(15000-12000)/12000=0.25，展示25.00%；现金净利润比1750/1500约1.1667，展示1.17倍。</p>
+<p>错误同比分母用15000，得到0.2，展示20.00%；正确结果与错误结果同为无量纲，AST类型检查发现不了这种业务语义差别，需要独立参考和输入样本。</p>
+<h2 id="4-dsl">4. DSL编译与量纲推导</h2>
+<h3 id="41">4.1 为什么设计表达式语言</h3>
+<p>当前任务只需要有限金额字段、少量运算和上年引用。让模型生成一条表达式，可以给出清楚的能力边界，也便于自动比较与解释。文件读取、网络、任意Python和Shell均不属于表达式语言。</p>
+<p>DSL支持revenue、net_profit、operating_cashflow，有限数值常量，加减乘，单目正负，safe_div、abs、lag(field,1)。不支持普通/、幂、属性、索引、循环、lambda、导入、函数定义或任意调用。</p>
+<h3 id="42-ast">4.2 AST在这里是什么</h3>
+<p><code>ast.parse(expression, mode="eval")</code>得到树，之后递归白名单检查；代码从不对表达式调用Python eval/exec。ast.parse只提供语法结构，不会自动判断可执行内容是否符合业务边界。<a href="https://docs.python.org/3.12/library/ast.html">Python AST官方文档</a></p>
+<p>表达式长度最多500，AST节点最多64，递归分析深度最多12，数值常量有限且绝对值最多1000000。这些预算控制本任务的复杂度，不是任意程序执行的操作系统级沙箱。</p>
+<p>常量从原表达式的源码片段构造Decimal，而不是先用AST中的Python float值。0.123456789123456789若先变成二进制float可能丢失后面的十进制位；本版保留原始字面量，并明确拒绝十六/二进制/八进制数值写法。lag偏移仍要求Python整数常量1。</p>
+<h3 id="43">4.3 量纲规则</h3>
+<p>用整数d表示金额量纲指数：金额字段d=1，比率/纯数d=0。相加相减要求左右d相同；相乘结果d相加；safe_div结果d相减。当前只允许0或1，最终指标要求0。</p>
+<table>
+<thead>
+<tr>
+<th>表达式</th>
+<th>推导</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>net_profit/revenue的safe_div写法</td>
+<td>1-1=0</td>
+<td>合法比率</td>
+</tr>
+<tr>
+<td>revenue-lag(revenue,1)</td>
+<td>1与1一致</td>
+<td>合法金额</td>
+</tr>
+<tr>
+<td>net_profit+1</td>
+<td>1与0不一致</td>
+<td>拒绝</td>
+</tr>
+<tr>
+<td>revenue*net_profit</td>
+<td>1+1=2</td>
+<td>拒绝金额平方</td>
+</tr>
+<tr>
+<td>safe_div(net_profit,2)</td>
+<td>1-0=1</td>
+<td>最终不是比率，拒绝</td>
+</tr>
+<tr>
+<td>100*safe_div(net_profit,revenue)</td>
+<td>0+0=0</td>
+<td>类型合法，但百分数语义错误</td>
+</tr>
+</tbody>
+</table>
+<h3 id="44">4.4 编译产物</h3>
+<p>Compiled保存tree、dimension、node_count和dependencies。dependencies区分当期revenue与lag:revenue:1。当前它是可复查的依赖集合，没有实现跨指标DAG、拓扑优化或公共子表达式消除。</p>
+<p>例如正确同比依赖是 <code>lag:revenue:1</code> 与 <code>revenue</code>。两个不同表达式可能有相同依赖，但值不同；也可能值恰巧相同，来源不同。编译结果是验证输入的一部分，不代替验证。</p>
+<h3 id="45">4.5 解释执行</h3>
+<p>evaluate递归处理已编译的节点。字段读取转为统一金额，lag检查previous，safe_div检查零分母。每次实际读取数据时收集source，最终返回去重排序后的来源集合。不存在动态函数查找或由模型指定文件路径。</p>
+<p>复杂度与AST节点数线性相关；节点与深度预算小，单次解释有限。当前数据只有current/previous两期，lag读取常数时间。扩展滑动窗口后要重新分析数据访问和计算成本。</p>
+<h3 id="46">4.6 编译练习</h3>
+<p>尝试 <code>safe_div(net_profit,revenue)</code>、<code>safe_div(revenue-lag(revenue,1),lag(revenue,1))</code>，观察依赖。再尝试 <code>net_profit+1</code>、<code>revenue.__class__</code>、<code>lag(revenue,2)</code>、<code>eval('1')</code>，说明每种为何被拒绝。测试不会实际执行这些字符串，只验证编译器拒绝它们。</p>
+<h2 id="5">5. 独立参考、对拍与缺陷检出</h2>
+<h3 id="51">5.1 参考实现的独立性</h3>
+<p>reference.py直接用Python算术写三个公式，不导入候选AST、replay表达式或候选结果。它与候选共享金额单位读取和业务域检查，这些属于输入口径公共组件；算术公式独立实现。测试另有明确手算输出，避免两个公式同时错而只互相验证。</p>
+<p>严格独立需要额外人工样本或第二套数据归一化检查，本版并不声称完全不同技术栈的双实现证明。mixed-units和小数手算用例用于核对共同基础层。</p>
+<h3 id="52">5.2 比较三类信息</h3>
+<p>先比较status；两侧ok时比较未舍入value；数值容差内再比较sources。Failure类别为status_mismatch、value_mismatch或source_mismatch。候选为常量0.1，在normal-a上数值碰巧等于净利率，但没有读取任何来源，仍不通过。</p>
+<p>来源一致只表明读到了相同记录，不能单独证明用了正确字段。相同记录上的cashflow与profit属于不同字段，因此仍需要数值比对和不同输入。source标识是教学样本出处，不是官方财报链接。</p>
+<h3 id="53">5.3 固定样本与种子样本</h3>
+<p>16条固定样本覆盖普通、混合单位、零收入、零上年基数、亏损、负现金流、缺字段、缺上年、年度间断、币种、母公司口径、错误实体、小数与持平收入。generated_cases使用局部Random(seed)，不污染全局随机状态。</p>
+<p>金额在-20至2000之间生成，单位独立选择元/万元，每8个样本按模式加入缺上年、缺利润、零基数、母公司口径、年份断档、零收入等情况。seed相同得到相同样本，支持复现；金额分布较窄，不代表真实报表分布。</p>
+<h3 id="54-17">5.4 17个预定义缺陷</h3>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>例子</th>
+<th>验证层</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>分子分母反转</td>
+<td>收入/利润、利润/现金流</td>
+<td>参考数值</td>
+</tr>
+<tr>
+<td>同比公式错误</td>
+<td>当期分母、变化符号反转、漏减基数</td>
+<td>参考数值</td>
+</tr>
+<tr>
+<td>指标字段错误</td>
+<td>现金流替利润、收入替净利润</td>
+<td>参考数值</td>
+</tr>
+<tr>
+<td>输出尺度错误</td>
+<td>公式内部额外乘100</td>
+<td>参考数值</td>
+</tr>
+<tr>
+<td>隐去负值</td>
+<td>abs掩盖收入下降或负现金流</td>
+<td>参考数值</td>
+</tr>
+<tr>
+<td>常量假结果</td>
+<td>0.1</td>
+<td>来源与不同输入</td>
+</tr>
+<tr>
+<td>时间范围错误</td>
+<td>lag(...,2)</td>
+<td>静态编译</td>
+</tr>
+<tr>
+<td>类型或调用错误</td>
+<td>原始金额、金额+1、eval</td>
+<td>静态编译</td>
+</tr>
+</tbody>
+</table>
+<p>这17个缺陷是人工指定集合，其中4个静态拒绝，13个在可编译表达式上被语义检查发现。不是自动穷举所有变异，也不是模型产生了17个错误后自主修好。</p>
+<h3 id="55-1440">5.5 1440次参考比对的统计</h3>
+<p>默认seed20261012生成32条，加16条固定，共48；三个正确表达式做144次比对。额外seed42、1337、314159各生成128条，每组144上下文×三个指标=432次，三组1296。合计1440次全部通过。</p>
+<p>固定样本在各组重复，所以1440是比较次数，不是1440个独立业务需求。表达式仅三个且已知正确，不代表新指标或任意生成公式的泛化效果。报告逐组保存metric、seed、cases、passed与compiled，方便核对。</p>
+<h3 id="56">5.6 变形测试</h3>
+<p>测试把同一上下文的金额同时乘17.5，验证三个比率不变。这检查比例缩放不应改变无量纲指标的性质。它能发现一部分单位/常量问题，不能代替参考答案，也不能单靠一次缩放证明所有输入。</p>
+<p>可再增加单位换算、相同比例变化和负号场景，但每个性质都必须符合业务域。例如把正收入全乘-1会越过域限制，不应要求净利率仍正常输出。</p>
+<h2 id="6">6. 反例缩减算法</h2>
+<h3 id="61">6.1 为什么缩减</h3>
+<p>初始反例有两个年度、三个金额和其他元信息。错误可能只由收入及上年收入决定，其他字段会分散注意力。缩减器尝试去掉无关金额或降低数值，帮助开发者或模型把失败集中到必要条件。</p>
+<p>例如同比错误分母在当期收入15000、上期12000上暴露，缩减后可能成为当期0、上年1。正确结果-1，错误分母产生零除；本版要求保留expected和actual的状态，所以这种改变会被拒绝。缩减必须仍保留原来的失败类型与状态。</p>
+<h3 id="62">6.2 复杂度函数</h3>
+<p>按三元组排序：非空金额字段数、原始金额绝对值之和、字符串总长度。先减少字段，再降低数值，最后降低表示复杂度。这里比较的是输入简洁程度，不是金融金额真实价值；单位不在缩减过程中改变。</p>
+<h3 id="63">6.3 候选变化</h3>
+<p>依次对current和previous的revenue/net_profit/operating_cashflow尝试None、0、1、-1、2、原值的一半。只评估复杂度严格下降的候选，最多80次实际比对。接受变化后继续遍历，直到无变化或预算耗尽。</p>
+<p>只有compare_case仍失败、category相同、expected.status相同、actual.status相同，才保留缩减。公司、年度、币种、scope和source不改变。origin改为shrunk，以区别原始样本。</p>
+<h3 id="64">6.4 保证和不保证</h3>
+<p>复杂度大约是预算B次候选验证，每次需要候选解释和参考计算；表达式节点数S受64限制，因此约O(BS)，忽略常数数据访问。停止条件与预算都能在测试里验证。</p>
+<h3 id="65">6.5 调试练习</h3>
+<p>对三个错误表达式分别读ShrinkResult，手算原始和缩减结果。把预算改为1和80，比较attempts、changed和反例结构。在一个已经通过的候选上调用minimize_failure应返回前置条件错误，不凭空制造失败。</p>
+<h2 id="7-agent">7. 六类工具与Agent权责</h2>
+<h3 id="71">7.1 工具契约</h3>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>参数</th>
+<th>产物</th>
+<th>前提</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>describe_contract</td>
+<td>无</td>
+<td>定义、字段、域、单位</td>
+<td>当前任务已明确metric_id</td>
+</tr>
+<tr>
+<td>propose_metric</td>
+<td>expression、reason</td>
+<td>candidate_id、编译与依赖</td>
+<td>候选预算未满</td>
+</tr>
+<tr>
+<td>validate_candidate</td>
+<td>candidate_id</td>
+<td>通过数与前两个失败</td>
+<td>候选属于当前运行</td>
+</tr>
+<tr>
+<td>minimize_failure</td>
+<td>candidate_id</td>
+<td>原反例、缩减反例、attempts</td>
+<td>先验证得到失败</td>
+</tr>
+<tr>
+<td>preview_chart</td>
+<td>candidate_id</td>
+<td>Chart规格</td>
+<td>候选可编译</td>
+</tr>
+<tr>
+<td>accept_candidate</td>
+<td>candidate_id</td>
+<td>重验结果和accepted</td>
+<td>全部验证通过且用例非空</td>
+</tr>
+</tbody>
+</table>
+<p>工具不接受文件路径、SQL、Shell命令或改变参考答案的参数。候选ID限定为candidate-1至candidate-3，查找只在当前AgentRuntime的候选字典中进行。</p>
+<h3 id="72">7.2 类型与业务校验</h3>
+<p>Pydantic args_schema拒绝额外字段、检查长度和候选ID形式。类型正确后，还要检查候选是否属于本次运行、是否已验证失败、是否编译成功。合理工具调用不仅是JSON合法，还需要满足状态前提。</p>
+<p>propose_metric编译失败也会保留候选及diagnostics，让模型看到错误并修订；不会只把程序异常丢给用户。候选失败仍消耗预算，防止无限提出复杂或非法表达式。</p>
+<h3 id="73">7.3 交付门槛</h3>
+<p>accept_candidate重新执行验证，不只信任先前通过标记；必须compiled、passed=total且total&gt;0。成功后记录accepted_candidate并生成最终chart，候选集冻结，后续工具返回delivery_already_frozen。</p>
+<p>这能阻止模型先说“通过了”，或者验证一个候选后交付另一个候选。当前Runtime对象内部候选仍由程序持有，API不提供任意修改；需要更多防护时可用内容hash和不可变交付快照。</p>
+<h3 id="74">7.4 预算</h3>
+<p>最多3个候选、20次工具、8轮模型；运行时和模型循环在调用间检查90秒预算，模型HTTP超时20秒、重试0。90秒不是硬中断，正在进行的HTTP仍可能到其超时才返回；当前也没有进程级杀死或取消API。</p>
+<p>工具错误仍消耗调用数。模型输出多工具时顺序执行，因为提出候选、验证和验收有依赖，不能把它们并发执行后假定结果一致。</p>
+<h3 id="75-replay">7.5 replay的准确含义</h3>
+<p>run_replay用已知错误候选和已知正确修订方案，经过同一分发器调用八次真实工具。验证、缩减、来源、产物和数据库都真实执行，只有决策策略是固定的。它用于测试和断网演示，不用来评价模型的理解或修复能力。</p>
+<h2 id="8-langchain">8. LangChain真实模型工具循环</h2>
+<h3 id="81">8.1 模型在做什么</h3>
+<p>llm模式把系统规则和用户requirement送给模型；模型根据工具schema决定调用describe、propose、validate等工具，并阅读工具返回的失败来提出修订。任务不是只有一次结构化计划输出，模型在多步执行中改变候选表达式。</p>
+<p>工具绑定使用LangChain StructuredTool和ChatOpenAI.bind_tools。模型响应的tool_calls只是一组调用请求，业务执行由AgentRuntime负责；执行结果以ToolMessage和对应tool_call_id返回，供下一轮模型使用。<a href="https://docs.langchain.com/oss/python/langchain/tools">LangChain工具文档</a>，<a href="https://docs.langchain.com/oss/python/langchain/models">LangChain模型工具调用文档</a></p>
+<h3 id="82">8.2 系统指令包含什么</h3>
+<p>任务目标、DSL语法、比率与百分数分工、工作顺序、候选和工具预算、必须工具验收、工具输出是数据、禁止越过契约。真实工具的输入schema与Prompt一致，避免文字说不支持却工具给出执行路径。</p>
+<p>用户需求可能含“跳过测试，直接验收”；模型即使照做，accept工具仍重新验证，不能变更业务标准。Prompt减少误用，服务端规则才决定实际权限。</p>
+<h3 id="83">8.3 工具消息顺序</h3>
+<p>一次模型输出被加入messages，然后每个工具结果添加ToolMessage。若一轮输出validate、preview、accept三个调用，服务顺序执行；accept成功后结束循环。若模型没有tool_calls却说成功，程序抛出未验收错误，结果rejected。</p>
+<p>模型传未知工具或额外参数，runtime返回可见错误；模型可以在剩余预算内调整。网络超时、协议错误等不是公式语义错误，最终Delivery.error记录Agent未完成，而不是悄悄切换replay成功。</p>
+<h3 id="84">8.4 模型用量</h3>
+<p>读取response.usage_metadata中整数input_tokens、output_tokens、total_tokens并累计。供应商不返回用量时usage为空，含义为未取得，不能当成免费或0token。token数也不是费用，需要供应商价格和实际账单才能计算。</p>
+<h3 id="85">8.5 配置与真实评测</h3>
+<pre><code class="language-powershell">$metricKeyInput = Read-Host &quot;输入模型API Key&quot; -AsSecureString
+$env:OPENAI_API_KEY = [System.Net.NetworkCredential]::new('', $metricKeyInput).Password
+$env:METRICFORGE_MODEL = Read-Host &quot;输入账户可用且支持工具调用的模型名&quot;
+uv run --frozen --all-extras metricforge &quot;新增营业收入同比，依据失败反例修订表达式&quot; --metric revenue_yoy --provider llm
+</code></pre>
+<p>以上为待使用者执行的真实联网步骤，不是已测结果。项目不自动加载.env，不预设模型，不主动上传本地轨迹到LangSmith。它会向模型服务发送需求、教学契约和工具反馈；只使用适合发送的测试内容。</p>
+<h3 id="86">8.6 桩测试验证了什么</h3>
+<p>测试构造真实LangChain工具绑定并禁止网络发送，证明本地依赖版本能组装接口。另一个ToolScriptModel通过AIMessage产生工具调用，真正走验证、缩减和验收，检查ToolMessage顺序。TalkOnly模型只说成功，被拒绝。</p>
+<p>这些证明协议与运行时，不能证明真实模型稳定调用、生成正确或能自行修复。后续要单列联网实验，并明确模型、Prompt、任务集合、种子、预算和成功定义。</p>
+<h3 id="87">8.7 真实模型的成功定义</h3>
+<p>建议分开测候选首次通过率、预算内验收率、修订次数、缺陷类别、工具参数错误、超时、用量和总耗时。目标契约和测试集冻结后再比较模型或Prompt；若模型看过全部测试反例，那是交互修订过程，不能把同一批用例称为完全独立的隐藏测试。</p>
+<p>可建立一组不返回给模型的holdout上下文，交付后单独验收。当前工具返回用例中的失败，额外seed评测只评估预定义正确表达式，尚未构成真实模型的隐藏集评价。</p>
+<h2 id="9">9. 持久化任务、幂等与并发</h2>
+<h3 id="91">9.1 为什么需要任务</h3>
+<p>工具验证通常很快，真实模型却可能超时或多次修订。HTTP请求只负责提交任务并返回ID，用户之后轮询结果。task生命周期与Agent候选生命周期分开，避免把“一个候选失败”错误地认为整个服务崩溃。</p>
+<p>jobs表保存id、idempotency_key、fingerprint、request_json、status、创建/更新时间、result_json和error。events表保存全局sequence、run_id、time、event和payload_json。序号是数据库全局递增，不保证某个任务从1连续排列，查询时按run_id过滤后排序。</p>
+<h3 id="92">9.2 状态机</h3>
+<pre><code class="language-text">queued -&gt; running -&gt; completed
+                  -&gt; failed
+启动时发现queued/running -&gt; interrupted
+</code></pre>
+<p>completed任务仍可能decision=rejected，因为执行完成但指标没有通过验收。failed一般表示队列提交、数据/产物或其他执行服务异常。Agent无法完成工具验收会产出rejected交付报告并记录agent.failed；它不一定把job变成failed。</p>
+<p>启动恢复仅标记中断，不自动续跑，也没有任务租约、心跳或分布式抢占。多个服务共享一个状态目录时，一个实例启动可能把另一个的任务标记中断，所以当前明确限定单实例使用。</p>
+<h3 id="93">9.3 状态与事件原子性</h3>
+<p>queued任务插入和job.queued事件在同一SQLite事务；claim的状态更改与job.running同事务；完成状态和job.completed也同事务。这样轮询看到终态时，查询事件能看到对应终态事件。</p>
+<p>回归测试发现过状态已完成但事件尚未写入的窗口，原因是两个独立事务。修复方法是共同提交，测试保留这一一致性要求。</p>
+<h3 id="94">9.4 幂等键</h3>
+<p>客户端为同一提交重试使用相同Idempotency-Key。fingerprint包含请求内容、fixtures文件hash、Prompt版本、业务Contract序列化内容，以及llm模式的模型名。相同key且fingerprint一致返回既有任务；不一致返回409。</p>
+<p>幂等不等于结果缓存，未提供key可以提交多个相同任务。已有任务被标记interrupted后，相同key仍返回旧任务；重新执行需要新key。当前没有用户身份，所以key作用域是整个本地服务，生产版需要用户/租户作用域。</p>
+<p>修改编译器或参考代码但不改版本，fingerprint不会自动包含代码diff；发布时应新增compiler_version/validator_version并放入指纹。当前契约与数据hash能覆盖相应配置变化，不能声称自动感知所有源代码变化。</p>
+<h3 id="95">9.5 并发重复请求</h3>
+<p>先查key，再尝试容量，再创建记录。真正防止两个相同key同时插入的是数据库UNIQUE约束；发生唯一冲突后重新读取已有任务。测试用四个并发客户端提交同一key，确认只创建一个任务，并确认最终容量全部归还。</p>
+<p>在首次记录尚未创建且容量已满时，重试仍可能得到429；客户端应按提示退避，不假定幂等键能绕过所有容量限制。任务已存在时则优先复用，不再增加工作量。</p>
+<h3 id="96">9.6 有界后台队列</h3>
+<p>默认ThreadPoolExecutor有2个worker，BoundedSemaphore容量6，表示排队加正在运行的在途任务总上限。两个worker最多同时执行两个任务，其余可排队。队列满立即429并返回Retry-After，不将无限任务堆进内存。</p>
+<p>worker finally释放容量；create发现是并发重复提交也释放未使用容量。executor.submit失败时记录任务failed并释放。不能把容量6写成“吞吐达到6请求每秒”，吞吐取决于任务耗时和工作负载。</p>
+<h3 id="97-sqlite-wal">9.7 SQLite WAL</h3>
+<p>每个操作创建短连接、启用外键和WAL、使用事务并显式关闭。WAL提高读写并行能力，但SQLite仍受写者串行和锁竞争约束，不是多写者无锁数据库。<a href="https://www.sqlite.org/wal.html">SQLite WAL官方说明</a></p>
+<p>本地任务和轨迹够用；生产可能需要独立数据库、消息队列、worker租约和产物存储。迁移时先定义状态与幂等语义，不能只把文件换成网络地址就宣布分布式化。</p>
+<h2 id="10">10. 图表与交付报告</h2>
+<h3 id="101">10.1 图表规格</h3>
+<p>Chart保存title、unit和points；每个点保存label、展示value、status和sources。只预览前7条固定样本，避免将128条随机上下文挤成不可读的图。全量验证仍覆盖全部用例，图的点数不等于验证样本数。</p>
+<p>百分数只在build_chart中将比率乘100；现金净利润比以倍展示。展示value保留两位，完整Delivery中的验证value仍保留未舍入结果，方便复算和追查。</p>
+<h3 id="102">10.2 缺失和负值</h3>
+<p>无数值的点显示“无数值：状态名”，不用0代替。负值向中心线左侧，正值向右侧，统一按最大绝对值缩放。亏损净利率和负现金流比率在各自业务域内可以显示为负；分母非正则按契约无数值。</p>
+<p>当candidate表达式产生极大数导致预览舍入异常时，runtime返回工具错误；不会让一个预览错误被当成整个Agent已成功验收。验收仍由全量validate决定。</p>
+<h3 id="103">10.3 三个交付文件</h3>
+<p>delivery.json保存完整候选、逐例失败、缩减反例、模式、种子、用量和最终验收。report.html展示业务契约、候选得分、缩减反例和图表入口；chart.svg可单独查看。完整来源在JSON中，SVG显示虚构标记但当前不列所有source。</p>
+<p>HTML的reason、title、表达式和反例经过escape，SVG文字也escape；不执行模型生成的HTML/JS。当前报告没有复杂交互组件或C端产品界面，它是研发人员可审查的交付文档。</p>
+<h3 id="104">10.4 验收图表练习</h3>
+<p>检查normal-a净利率10.00%，亏损净利率负数，零收入显示nonpositive_base。检查同比图中缺上年不变成0%。再把候选reason改成 <code>&lt;script&gt;</code> 字样，确认报告显示文本而不是标签。</p>
+<p>一个图表只有单位正确还不够，来源、年份、实体和显示比例都要相符。今后改成交互组件，保持Chart契约，分别测试数据与渲染。</p>
+<h2 id="11_1">11. 接口、配置与故障定位</h2>
+<h3 id="111">11.1 请求字段</h3>
+<p>requirement长度4至800字符；metric_id仅三个值；provider为replay或llm；seed必须是0至2^31-1的严格整数；generated_cases严格整数0至128。布尔值不能冒充1，额外字段拒绝。API的任务模式随每个请求指定，无需全局切换provider。</p>
+<h3 id="112">11.2 返回与错误</h3>
+<table>
+<thead>
+<tr>
+<th>情况</th>
+<th>结果</th>
+<th>应对</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>成功提交/重试复用</td>
+<td>202和任务记录</td>
+<td>用id轮询</td>
+</tr>
+<tr>
+<td>参数类型、范围或额外字段</td>
+<td>422</td>
+<td>修改请求</td>
+</tr>
+<tr>
+<td>同key不同请求</td>
+<td>409</td>
+<td>修正重试或使用新key</td>
+</tr>
+<tr>
+<td>新任务容量已满</td>
+<td>429</td>
+<td>退避重试</td>
+</tr>
+<tr>
+<td>未知任务</td>
+<td>404</td>
+<td>检查id</td>
+</tr>
+<tr>
+<td>产物未就绪或不在白名单</td>
+<td>404</td>
+<td>等待终态或使用支持文件名</td>
+</tr>
+<tr>
+<td>Agent未验收</td>
+<td>completed + rejected + error/轨迹</td>
+<td>检查工具、预算或模型</td>
+</tr>
+<tr>
+<td>内部执行服务异常</td>
+<td>failed</td>
+<td>查job.failed与环境</td>
+</tr>
+</tbody>
+</table>
+<p>artifact路由run_id限定32位十六进制，filename限定三个文件；模型不能指定任意路径下载本地数据库。GET jobs当前没有用户授权隔离，只用于127.0.0.1本机学习。</p>
+<h3 id="113">11.3 配置目录</h3>
+<p>API默认 <code>data/api</code>，可用METRICFORGE_STATE指定状态目录；METRICFORGE_ROOT指定含fixtures的项目目录。CLI --output指定独立运行目录，默认data/demo。不要把API运行中目录当CLI输出目录，否则CLI初始化恢复会影响活动任务。</p>
+<p>项目按源码仓库运行，wheel不包含fixtures。单独安装到别处时需要提供完整数据根；CLI目前按源码相对目录找root，优先从仓库执行。不得把“能pip装模块”写成“独立可迁移部署已验证”。</p>
+<h3 id="114">11.4 问题排查顺序</h3>
+<p>先health，再POST提交，再job状态，再events，最后delivery/report。如果status completed且decision rejected，看是否配置缺失、模型无工具调用、工具参数错误、候选全失败或预算耗尽。业务失败不是网络500，两层要分开。</p>
+<p>Key/model配置缺失会使llm执行未验收，服务保留失败类型，不打印认证信息。工具参数中的reason和requirement可能记录到本地数据库，因此不要提交真实敏感资料；本版没有自动脱敏、日志保留期和审计管理。</p>
+<h3 id="115-http">11.5 HTTP验证的范围</h3>
+<p>smoke_http启动临时端口和临时状态目录，提交、重试、轮询、下载报告并解析SVG，再清理它启动的服务。没有关闭你的其他服务或修改日常API状态。测试证明本机HTTP行为，不证明公网、TLS、浏览器设备兼容或生产吞吐。</p>
+<h2 id="12_1">12. 尚未实现的扩展路线</h2>
+<h3 id="121">12.1 自动需求解析</h3>
+<p>目标是从自然语言识别metric_id、报告期、展示单位和需求是否冲突。新建RequestPlan模型，要求明确支持范围，遇到“毛利率”“扣非净利润”“季度同比”时澄清。不要在没实现这些契约时映射到现有指标。</p>
+<p>标注包含明确、口语、缩写、否定、多指标、未知和矛盾类型；人工目标计划独立于模型输出。先用规则/Prompt基线，再比较小模型或SFT，报告字段exact match和澄清召回，而不是只看中文是否流畅。</p>
+<h3 id="122">12.2 真实模型隐藏验收</h3>
+<p>将工具可见开发用例与隐藏测试分开，模型修订只能看开发失败。accept时返回是否满足开发契约，交付后由单独grader跑隐藏数据；外部报告明确两个集合。隐藏集若失败，保存具体原因，不能反复让模型看完整隐藏反例再叫独立测试。</p>
+<p>可做分母、单位、缺失、负数、极端值和相近口径的新任务集合。当前只支持三个已定义指标，不把新指标测试混进旧指标回归结果。</p>
+<h3 id="123-dag">12.3 跨指标DAG</h3>
+<p>新增gross_margin、ROE等契约前先定义字段、金额/时间量纲和域。把指标依赖构成有向图，拓扑排序检测环，复用共同子表达式。变更一条基础字段时计算受影响子图，仅对受影响指标做验证。</p>
+<h3 id="124">12.4 模型微调</h3>
+<p>适合先训练需求到计划或需求到DSL的小任务，而不是让模型凭参数记住最新财报。数据包含合法候选、典型错误、工具反馈与正确修订，训练/验证/测试按任务族划分，避免模板重复泄漏。</p>
+<p>如果采用LoRA，先理解低秩增量及目标层、loss mask、chat template、数据划分和推理配置，再做Prompt与微调对比。当前没有训练代码或微调成果，可对照已有FinEvidence学习手册的微调章节，再单独形成实验记录。</p>
+<h3 id="125">12.5 真正的研发提效测量</h3>
+<p>给相同的一组指标任务，记录人工从需求到合格交付的时间、错误数和审查成本，再记录Copilot辅助下的同类产物。使用统一成功标准和审查人员，区分模型生成时间与人员总完成时间。</p>
+<p>没有进行该实验时，项目只能说“面向研发提效场景”，不能写“开发效率提高50%”。工具调用数8或比对速度快，也不能自动代表人的效率提升。</p>
+<h3 id="126">12.6 生产任务服务</h3>
+<p>增加认证授权、任务租约、worker心跳、可取消任务、持久队列、产物对象存储和统一版本。真正取消要传播到模型请求或执行进程；仅在数据库标记cancelled不会停止后台工作。状态机迁移后重新测幂等与崩溃恢复。</p>
+<p>这些扩展尚未实现，当前演示保留单实例和中断重提语义。工程能力可以先通过已实现的原子状态/事件、唯一幂等键与有界容量展示。</p>
+<h2 id="13_1">13. 八个可执行的学习实验</h2>
+<h3 id="1_1">实验1：手算错误分母</h3>
+<p>用normal-a运行正确与错误同比，列出0.25和0.2、来源和展示25%/20%。把候选表达式内部乘100，确认类型通过但语义验证失败。交付一页图文记录，标注这三个表达式分别由哪一层发现错误。</p>
+<h3 id="2_1">实验2：单位变换</h3>
+<p>把当前行万元换成元，同时将所有金额乘10000，检查三个指标不变。只改unit不改value会改变经济意义，不应要求同比不变。写出测试预期，加入新的mixed-units回归样本。</p>
+<h3 id="3_1">实验3：数据域</h3>
+<p>将上年收入设为0、负数、None，记录nonpositive_base或missing_field；把previous.year改为2023，记录missing_period。使用相同candidate解释为何模型公式不再被执行，理解域预检属于系统逻辑。</p>
+<h3 id="4ast">实验4：AST常量精度</h3>
+<p>计算 <code>safe_div(net_profit,revenue)+0.123456789123456789</code>，检查完整小数位。解释从源码片段构造Decimal与从AST float构造的区别。尝试0x10并确认显式拒绝，别把支持Python表达式误解为支持Python全部字面量和语法。</p>
+<h3 id="5_1">实验5：反例预算</h3>
+<p>针对错误同比，以预算1、10、80做缩减；记录attempts、复杂度三元组、expected/actual状态和是否仍失败。预算大不一定得到全局最小，应检查局部缩减收益与耗时。</p>
+<h3 id="6_1">实验6：并发幂等</h3>
+<p>四个客户端同key同时提交，验证一个任务ID、一条job.queued和一份最终报告；改seed复用key验证409。再占满六个在途位置，新提交应429。原子完成后，轮询终态与完成事件应一致。</p>
+<h3 id="7">实验7：真实模型修订</h3>
+<p>在可用账户配置模型，先观察它是否读契约、生成合法DSL、使用反例修订、通过accept。记录Prompt版本、模型名、预算、种子、工具轨迹、每个候选和成本/延迟。成功或失败都保存，不选取一条成功来代表全部任务。</p>
+<h3 id="8">实验8：独立新指标</h3>
+<p>先选一个有明确字段和域的新指标，人工写Contract和reference，准备固定/生成/隐藏样本；再让模型生成DSL。尽量避免只是把现有字段名替换一次，目标是展示未见过的任务族。执行后更新接口枚举、图表单位、文档和评测结果。</p>
+<h2 id="14_1">14. 官方参考与版本边界</h2>
+<p>参考链接在2026-10-12核对，软件文档可能更新，实际接口以本项目uv.lock和当前版本测试为准。源码中的指标定义是教学契约，未引用真实企业报表。</p>
+<table>
+<thead>
+<tr>
+<th>官方资料</th>
+<th>对应学习内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://docs.python.org/3.12/library/ast.html">Python3.12 AST</a></td>
+<td>表达式结构和源码片段</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/3.12/library/decimal.html">Python3.12 Decimal</a></td>
+<td>十进制计算、精度与舍入</td>
+</tr>
+<tr>
+<td><a href="https://docs.langchain.com/oss/python/langchain/tools">LangChain tools</a></td>
+<td>工具schema与执行结果</td>
+</tr>
+<tr>
+<td><a href="https://docs.langchain.com/oss/python/langchain/models">LangChain models</a></td>
+<td>工具调用和模型消息</td>
+</tr>
+<tr>
+<td><a href="https://docs.langchain.com/oss/python/integrations/chat/openai">LangChain ChatOpenAI</a></td>
+<td>供应商适配器的能力与边界</td>
+</tr>
+<tr>
+<td><a href="https://www.sqlite.org/wal.html">SQLite WAL</a></td>
+<td>WAL读写与并发限制</td>
+</tr>
+<tr>
+<td><a href="https://docs.pydantic.dev/latest/concepts/models/">Pydantic模型</a></td>
+<td>类型和跨字段校验</td>
+</tr>
+<tr>
+<td><a href="https://fastapi.tiangolo.com/tutorial/testing/">FastAPI测试</a></td>
+<td>进程内接口测试</td>
+</tr>
+</tbody>
+</table></main></div></body></html>

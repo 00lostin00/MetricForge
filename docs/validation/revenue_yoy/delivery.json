@@ -1,0 +1,1207 @@
+{
+  "run_id": "demo-revenue_yoy",
+  "decision": "accepted",
+  "provider": "replay",
+  "driver": "scripted-replay-v1",
+  "contract": {
+    "metric_id": "revenue_yoy",
+    "title": "营业收入同比",
+    "definition": "(本年营业收入-同公司上年营业收入)/上年营业收入；返回比率，展示乘100",
+    "required_fields": [
+      "revenue"
+    ],
+    "lookback": 1,
+    "domain": "上年收入須为正；年度必须连续；两期同公司/币种/合并口径；单位先归一化",
+    "output_unit": "%",
+    "source": "teaching-contract:revenue_yoy:v1"
+  },
+  "candidates": [
+    {
+      "id": "candidate-1",
+      "expression": "safe_div(revenue - lag(revenue, 1), revenue)",
+      "reason": "固定演示策略：先提出含已知缺陷的候选以展示验证流程",
+      "compiled": true,
+      "dependencies": [
+        "lag:revenue:1",
+        "revenue"
+      ],
+      "dimension": 0,
+      "node_count": 16,
+      "diagnostics": [],
+      "validation": {
+        "compiled": true,
+        "diagnostics": [],
+        "total": 48,
+        "passed": 26,
+        "failures": [
+          {
+            "case": {
+              "id": "normal-a",
+              "current": {
+                "company": "青禾（虚构）",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "15000",
+                "net_profit": "1500",
+                "operating_cashflow": "1750",
+                "source": "fixture:a:2025"
+              },
+              "previous": {
+                "company": "青禾（虚构）",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "12000",
+                "net_profit": "1080",
+                "operating_cashflow": "1350",
+                "source": "fixture:a:2024"
+              },
+              "origin": "fixed"
+            },
+            "category": "value_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "0.25",
+              "sources": [
+                "fixture:a:2024",
+                "fixture:a:2025"
+              ]
+            },
+            "actual": {
+              "status": "ok",
+              "value": "0.2",
+              "sources": [
+                "fixture:a:2024",
+                "fixture:a:2025"
+              ]
+            }
+          },
+          {
+            "case": {
+              "id": "normal-b",
+              "current": {
+                "company": "澄海（虚构）",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "21000",
+                "net_profit": "840",
+                "operating_cashflow": "1050",
+                "source": "fixture:b:2025"
+              },
+              "previous": {
+                "company": "澄海（虚构）",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "20000",
+                "net_profit": "1000",
+                "operating_cashflow": "1200",
+                "source": "fixture:b:2024"
+              },
+              "origin": "fixed"
+            },
+            "category": "value_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "0.05",
+              "sources": [
+                "fixture:b:2024",
+                "fixture:b:2025"
+              ]
+            },
+            "actual": {
+              "status": "ok",
+              "value": "0.04761904761904761904761904762",
+              "sources": [
+                "fixture:b:2024",
+                "fixture:b:2025"
+              ]
+            }
+          },
+          {
+            "case": {
+              "id": "mixed-units",
+              "current": {
+                "company": "单位样本（虚构）",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "15000",
+                "net_profit": "1500",
+                "operating_cashflow": "1750",
+                "source": "fixture:mixed:2025"
+              },
+              "previous": {
+                "company": "单位样本（虚构）",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY",
+                "scope": "consolidated",
+                "revenue": "120000000",
+                "net_profit": "10800000",
+                "operating_cashflow": "13500000",
+                "source": "fixture:mixed:2024"
+              },
+              "origin": "fixed"
+            },
+            "category": "value_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "0.25",
+              "sources": [
+                "fixture:mixed:2024",
+                "fixture:mixed:2025"
+              ]
+            },
+            "actual": {
+              "status": "ok",
+              "value": "0.2",
+              "sources": [
+                "fixture:mixed:2024",
+                "fixture:mixed:2025"
+              ]
+            }
+          },
+          {
+            "case": {
+              "id": "zero-revenue",
+              "current": {
+                "company": "零收入样本",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "0",
+                "net_profit": "10",
+                "operating_cashflow": "5",
+                "source": "fixture:zero"
+              },
+              "previous": {
+                "company": "零收入样本",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "100",
+                "net_profit": "10",
+                "operating_cashflow": "5",
+                "source": "fixture:zero:previous"
+              },
+              "origin": "fixed"
+            },
+            "category": "status_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "-1",
+              "sources": [
+                "fixture:zero",
+                "fixture:zero:previous"
+              ]
+            },
+            "actual": {
+              "status": "zero_denominator",
+              "value": null,
+              "sources": []
+            }
+          },
+          {
+            "case": {
+              "id": "negative-profit",
+              "current": {
+                "company": "亏损样本",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "100",
+                "net_profit": "-10",
+                "operating_cashflow": "5",
+                "source": "fixture:loss"
+              },
+              "previous": {
+                "company": "亏损样本",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "120",
+                "net_profit": "10",
+                "operating_cashflow": "5",
+                "source": "fixture:loss:previous"
+              },
+              "origin": "fixed"
+            },
+            "category": "value_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "-0.1666666666666666666666666667",
+              "sources": [
+                "fixture:loss",
+                "fixture:loss:previous"
+              ]
+            },
+            "actual": {
+              "status": "ok",
+              "value": "-0.2",
+              "sources": [
+                "fixture:loss",
+                "fixture:loss:previous"
+              ]
+            }
+          },
+          {
+            "case": {
+              "id": "negative-cashflow",
+              "current": {
+                "company": "负现金流样本",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "100",
+                "net_profit": "10",
+                "operating_cashflow": "-5",
+                "source": "fixture:negative-cash"
+              },
+              "previous": {
+                "company": "负现金流样本",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "120",
+                "net_profit": "10",
+                "operating_cashflow": "5",
+                "source": "fixture:negative-cash:previous"
+              },
+              "origin": "fixed"
+            },
+            "category": "value_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "-0.1666666666666666666666666667",
+              "sources": [
+                "fixture:negative-cash",
+                "fixture:negative-cash:previous"
+              ]
+            },
+            "actual": {
+              "status": "ok",
+              "value": "-0.2",
+              "sources": [
+                "fixture:negative-cash",
+                "fixture:negative-cash:previous"
+              ]
+            }
+          },
+          {
+            "case": {
+              "id": "small-decimals",
+              "current": {
+                "company": "小数样本",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY",
+                "scope": "consolidated",
+                "revenue": "0.30",
+                "net_profit": "0.03",
+                "operating_cashflow": "0.02",
+                "source": "fixture:small"
+              },
+              "previous": {
+                "company": "小数样本",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY",
+                "scope": "consolidated",
+                "revenue": "0.20",
+                "net_profit": "0.01",
+                "operating_cashflow": "0.01",
+                "source": "fixture:small:previous"
+              },
+              "origin": "fixed"
+            },
+            "category": "value_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "0.5",
+              "sources": [
+                "fixture:small",
+                "fixture:small:previous"
+              ]
+            },
+            "actual": {
+              "status": "ok",
+              "value": "0.3333333333333333333333333333",
+              "sources": [
+                "fixture:small",
+                "fixture:small:previous"
+              ]
+            }
+          },
+          {
+            "case": {
+              "id": "seed-20261012-0",
+              "current": {
+                "company": "GENERATED_0",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY",
+                "scope": "consolidated",
+                "revenue": "812",
+                "net_profit": "-4",
+                "operating_cashflow": "1596",
+                "source": "generated:20261012:0:2025"
+              },
+              "previous": {
+                "company": "GENERATED_0",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY",
+                "scope": "consolidated",
+                "revenue": "83",
+                "net_profit": "-18",
+                "operating_cashflow": "1968",
+                "source": "generated:20261012:0:2024"
+              },
+              "origin": "generated"
+            },
+            "category": "value_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "8.783132530120481927710843373",
+              "sources": [
+                "generated:20261012:0:2024",
+                "generated:20261012:0:2025"
+              ]
+            },
+            "actual": {
+              "status": "ok",
+              "value": "0.8977832512315270935960591133",
+              "sources": [
+                "generated:20261012:0:2024",
+                "generated:20261012:0:2025"
+              ]
+            }
+          },
+          {
+            "case": {
+              "id": "seed-20261012-2",
+              "current": {
+                "company": "GENERATED_2",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY",
+                "scope": "consolidated",
+                "revenue": "1223",
+                "net_profit": null,
+                "operating_cashflow": "1833",
+                "source": "generated:20261012:2:2025"
+              },
+              "previous": {
+                "company": "GENERATED_2",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY",
+                "scope": "consolidated",
+                "revenue": "1323",
+                "net_profit": "626",
+                "operating_cashflow": "875",
+                "source": "generated:20261012:2:2024"
+              },
+              "origin": "generated"
+            },
+            "category": "value_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "-0.07558578987150415721844293273",
+              "sources": [
+                "generated:20261012:2:2024",
+                "generated:20261012:2:2025"
+              ]
+            },
+            "actual": {
+              "status": "ok",
+              "value": "-0.08176614881439084219133278823",
+              "sources": [
+                "generated:20261012:2:2024",
+                "generated:20261012:2:2025"
+              ]
+            }
+          },
+          {
+            "case": {
+              "id": "seed-20261012-6",
+              "current": {
+                "company": "GENERATED_6",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY",
+                "scope": "consolidated",
+                "revenue": "0",
+                "net_profit": "1145",
+                "operating_cashflow": "1062",
+                "source": "generated:20261012:6:2025"
+              },
+              "previous": {
+                "company": "GENERATED_6",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "294",
+                "net_profit": "820",
+                "operating_cashflow": "937",
+                "source": "generated:20261012:6:2024"
+              },
+              "origin": "generated"
+            },
+            "category": "status_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "-1",
+              "sources": [
+                "generated:20261012:6:2024",
+                "generated:20261012:6:2025"
+              ]
+            },
+            "actual": {
+              "status": "zero_denominator",
+              "value": null,
+              "sources": []
+            }
+          },
+          {
+            "case": {
+              "id": "seed-20261012-7",
+              "current": {
+                "company": "GENERATED_7",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "1682",
+                "net_profit": "1007",
+                "operating_cashflow": "62",
+                "source": "generated:20261012:7:2025"
+              },
+              "previous": {
+                "company": "GENERATED_7",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY",
+                "scope": "consolidated",
+                "revenue": "1789",
+                "net_profit": "800",
+                "operating_cashflow": "1045",
+                "source": "generated:20261012:7:2024"
+              },
+              "origin": "generated"
+            },
+            "category": "value_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "9400.900503074343208496366685",
+              "sources": [
+                "generated:20261012:7:2024",
+                "generated:20261012:7:2025"
+              ]
+            },
+            "actual": {
+              "status": "ok",
+              "value": "0.9998936385255648038049940547",
+              "sources": [
+                "generated:20261012:7:2024",
+                "generated:20261012:7:2025"
+              ]
+            }
+          },
+          {
+            "case": {
+              "id": "seed-20261012-8",
+              "current": {
+                "company": "GENERATED_8",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY",
+                "scope": "consolidated",
+                "revenue": "441",
+                "net_profit": "628",
+                "operating_cashflow": "376",
+                "source": "generated:20261012:8:2025"
+              },
+              "previous": {
+                "company": "GENERATED_8",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "1668",
+                "net_profit": "1597",
+                "operating_cashflow": "104",
+                "source": "generated:20261012:8:2024"
+              },
+              "origin": "generated"
+            },
+            "category": "value_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "-0.9999735611510791366906474820",
+              "sources": [
+                "generated:20261012:8:2024",
+                "generated:20261012:8:2025"
+              ]
+            },
+            "actual": {
+              "status": "ok",
+              "value": "-37822.12925170068027210884354",
+              "sources": [
+                "generated:20261012:8:2024",
+                "generated:20261012:8:2025"
+              ]
+            }
+          },
+          {
+            "case": {
+              "id": "seed-20261012-10",
+              "current": {
+                "company": "GENERATED_10",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY",
+                "scope": "consolidated",
+                "revenue": "325",
+                "net_profit": null,
+                "operating_cashflow": "971",
+                "source": "generated:20261012:10:2025"
+              },
+              "previous": {
+                "company": "GENERATED_10",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "969",
+                "net_profit": "1681",
+                "operating_cashflow": "370",
+                "source": "generated:20261012:10:2024"
+              },
+              "origin": "generated"
+            },
+            "category": "value_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "-0.9999664602683178534571723426",
+              "sources": [
+                "generated:20261012:10:2024",
+                "generated:20261012:10:2025"
+              ]
+            },
+            "actual": {
+              "status": "ok",
+              "value": "-29814.38461538461538461538462",
+              "sources": [
+                "generated:20261012:10:2024",
+                "generated:20261012:10:2025"
+              ]
+            }
+          },
+          {
+            "case": {
+              "id": "seed-20261012-14",
+              "current": {
+                "company": "GENERATED_14",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY",
+                "scope": "consolidated",
+                "revenue": "0",
+                "net_profit": "99",
+                "operating_cashflow": "320",
+                "source": "generated:20261012:14:2025"
+              },
+              "previous": {
+                "company": "GENERATED_14",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "13",
+                "net_profit": "259",
+                "operating_cashflow": "1941",
+                "source": "generated:20261012:14:2024"
+              },
+              "origin": "generated"
+            },
+            "category": "status_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "-1",
+              "sources": [
+                "generated:20261012:14:2024",
+                "generated:20261012:14:2025"
+              ]
+            },
+            "actual": {
+              "status": "zero_denominator",
+              "value": null,
+              "sources": []
+            }
+          },
+          {
+            "case": {
+              "id": "seed-20261012-16",
+              "current": {
+                "company": "GENERATED_16",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "1485",
+                "net_profit": "1340",
+                "operating_cashflow": "444",
+                "source": "generated:20261012:16:2025"
+              },
+              "previous": {
+                "company": "GENERATED_16",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "1222",
+                "net_profit": "1440",
+                "operating_cashflow": "1656",
+                "source": "generated:20261012:16:2024"
+              },
+              "origin": "generated"
+            },
+            "category": "value_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "0.2152209492635024549918166939",
+              "sources": [
+                "generated:20261012:16:2024",
+                "generated:20261012:16:2025"
+              ]
+            },
+            "actual": {
+              "status": "ok",
+              "value": "0.1771043771043771043771043771",
+              "sources": [
+                "generated:20261012:16:2024",
+                "generated:20261012:16:2025"
+              ]
+            }
+          },
+          {
+            "case": {
+              "id": "seed-20261012-18",
+              "current": {
+                "company": "GENERATED_18",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "179",
+                "net_profit": null,
+                "operating_cashflow": "1601",
+                "source": "generated:20261012:18:2025"
+              },
+              "previous": {
+                "company": "GENERATED_18",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "12",
+                "net_profit": "1164",
+                "operating_cashflow": "407",
+                "source": "generated:20261012:18:2024"
+              },
+              "origin": "generated"
+            },
+            "category": "value_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "13.91666666666666666666666667",
+              "sources": [
+                "generated:20261012:18:2024",
+                "generated:20261012:18:2025"
+              ]
+            },
+            "actual": {
+              "status": "ok",
+              "value": "0.9329608938547486033519553073",
+              "sources": [
+                "generated:20261012:18:2024",
+                "generated:20261012:18:2025"
+              ]
+            }
+          },
+          {
+            "case": {
+              "id": "seed-20261012-22",
+              "current": {
+                "company": "GENERATED_22",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "0",
+                "net_profit": "938",
+                "operating_cashflow": "20",
+                "source": "generated:20261012:22:2025"
+              },
+              "previous": {
+                "company": "GENERATED_22",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY",
+                "scope": "consolidated",
+                "revenue": "1503",
+                "net_profit": "218",
+                "operating_cashflow": "1008",
+                "source": "generated:20261012:22:2024"
+              },
+              "origin": "generated"
+            },
+            "category": "status_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "-1",
+              "sources": [
+                "generated:20261012:22:2024",
+                "generated:20261012:22:2025"
+              ]
+            },
+            "actual": {
+              "status": "zero_denominator",
+              "value": null,
+              "sources": []
+            }
+          },
+          {
+            "case": {
+              "id": "seed-20261012-23",
+              "current": {
+                "company": "GENERATED_23",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY",
+                "scope": "consolidated",
+                "revenue": "1527",
+                "net_profit": "800",
+                "operating_cashflow": "378",
+                "source": "generated:20261012:23:2025"
+              },
+              "previous": {
+                "company": "GENERATED_23",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY",
+                "scope": "consolidated",
+                "revenue": "181",
+                "net_profit": "169",
+                "operating_cashflow": "485",
+                "source": "generated:20261012:23:2024"
+              },
+              "origin": "generated"
+            },
+            "category": "value_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "7.436464088397790055248618785",
+              "sources": [
+                "generated:20261012:23:2024",
+                "generated:20261012:23:2025"
+              ]
+            },
+            "actual": {
+              "status": "ok",
+              "value": "0.8814669286182056319580877538",
+              "sources": [
+                "generated:20261012:23:2024",
+                "generated:20261012:23:2025"
+              ]
+            }
+          },
+          {
+            "case": {
+              "id": "seed-20261012-24",
+              "current": {
+                "company": "GENERATED_24",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "1883",
+                "net_profit": "118",
+                "operating_cashflow": "1171",
+                "source": "generated:20261012:24:2025"
+              },
+              "previous": {
+                "company": "GENERATED_24",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "244",
+                "net_profit": "1707",
+                "operating_cashflow": "1216",
+                "source": "generated:20261012:24:2024"
+              },
+              "origin": "generated"
+            },
+            "category": "value_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "6.717213114754098360655737705",
+              "sources": [
+                "generated:20261012:24:2024",
+                "generated:20261012:24:2025"
+              ]
+            },
+            "actual": {
+              "status": "ok",
+              "value": "0.8704195432819968135953266065",
+              "sources": [
+                "generated:20261012:24:2024",
+                "generated:20261012:24:2025"
+              ]
+            }
+          },
+          {
+            "case": {
+              "id": "seed-20261012-26",
+              "current": {
+                "company": "GENERATED_26",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY",
+                "scope": "consolidated",
+                "revenue": "1186",
+                "net_profit": null,
+                "operating_cashflow": "9",
+                "source": "generated:20261012:26:2025"
+              },
+              "previous": {
+                "company": "GENERATED_26",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "741",
+                "net_profit": "821",
+                "operating_cashflow": "1124",
+                "source": "generated:20261012:26:2024"
+              },
+              "origin": "generated"
+            },
+            "category": "value_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "-0.9998399460188933873144399460",
+              "sources": [
+                "generated:20261012:26:2024",
+                "generated:20261012:26:2025"
+              ]
+            },
+            "actual": {
+              "status": "ok",
+              "value": "-6246.892074198988195615514334",
+              "sources": [
+                "generated:20261012:26:2024",
+                "generated:20261012:26:2025"
+              ]
+            }
+          },
+          {
+            "case": {
+              "id": "seed-20261012-30",
+              "current": {
+                "company": "GENERATED_30",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "0",
+                "net_profit": "419",
+                "operating_cashflow": "1654",
+                "source": "generated:20261012:30:2025"
+              },
+              "previous": {
+                "company": "GENERATED_30",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "459",
+                "net_profit": "143",
+                "operating_cashflow": "1028",
+                "source": "generated:20261012:30:2024"
+              },
+              "origin": "generated"
+            },
+            "category": "status_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "-1",
+              "sources": [
+                "generated:20261012:30:2024",
+                "generated:20261012:30:2025"
+              ]
+            },
+            "actual": {
+              "status": "zero_denominator",
+              "value": null,
+              "sources": []
+            }
+          },
+          {
+            "case": {
+              "id": "seed-20261012-31",
+              "current": {
+                "company": "GENERATED_31",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY",
+                "scope": "consolidated",
+                "revenue": "692",
+                "net_profit": "232",
+                "operating_cashflow": "1504",
+                "source": "generated:20261012:31:2025"
+              },
+              "previous": {
+                "company": "GENERATED_31",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY",
+                "scope": "consolidated",
+                "revenue": "1689",
+                "net_profit": "496",
+                "operating_cashflow": "527",
+                "source": "generated:20261012:31:2024"
+              },
+              "origin": "generated"
+            },
+            "category": "value_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "-0.5902901124925991711071640024",
+              "sources": [
+                "generated:20261012:31:2024",
+                "generated:20261012:31:2025"
+              ]
+            },
+            "actual": {
+              "status": "ok",
+              "value": "-1.440751445086705202312138728",
+              "sources": [
+                "generated:20261012:31:2024",
+                "generated:20261012:31:2025"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "candidate-2",
+      "expression": "safe_div(revenue - lag(revenue, 1), lag(revenue, 1))",
+      "reason": "固定演示策略：应用预先定义的正确表达式",
+      "compiled": true,
+      "dependencies": [
+        "lag:revenue:1",
+        "revenue"
+      ],
+      "dimension": 0,
+      "node_count": 20,
+      "diagnostics": [],
+      "validation": {
+        "compiled": true,
+        "diagnostics": [],
+        "total": 48,
+        "passed": 48,
+        "failures": []
+      }
+    }
+  ],
+  "accepted_candidate": "candidate-2",
+  "shrink": {
+    "original": {
+      "case": {
+        "id": "normal-a",
+        "current": {
+          "company": "青禾（虚构）",
+          "year": 2025,
+          "currency": "CNY",
+          "unit": "CNY_10K",
+          "scope": "consolidated",
+          "revenue": "15000",
+          "net_profit": "1500",
+          "operating_cashflow": "1750",
+          "source": "fixture:a:2025"
+        },
+        "previous": {
+          "company": "青禾（虚构）",
+          "year": 2024,
+          "currency": "CNY",
+          "unit": "CNY_10K",
+          "scope": "consolidated",
+          "revenue": "12000",
+          "net_profit": "1080",
+          "operating_cashflow": "1350",
+          "source": "fixture:a:2024"
+        },
+        "origin": "fixed"
+      },
+      "category": "value_mismatch",
+      "expected": {
+        "status": "ok",
+        "value": "0.25",
+        "sources": [
+          "fixture:a:2024",
+          "fixture:a:2025"
+        ]
+      },
+      "actual": {
+        "status": "ok",
+        "value": "0.2",
+        "sources": [
+          "fixture:a:2024",
+          "fixture:a:2025"
+        ]
+      }
+    },
+    "reduced": {
+      "case": {
+        "id": "normal-a",
+        "current": {
+          "company": "青禾（虚构）",
+          "year": 2025,
+          "currency": "CNY",
+          "unit": "CNY_10K",
+          "scope": "consolidated",
+          "revenue": "0.00048828125",
+          "net_profit": null,
+          "operating_cashflow": null,
+          "source": "fixture:a:2025"
+        },
+        "previous": {
+          "company": "青禾（虚构）",
+          "year": 2024,
+          "currency": "CNY",
+          "unit": "CNY_10K",
+          "scope": "consolidated",
+          "revenue": "0.0009765625",
+          "net_profit": null,
+          "operating_cashflow": null,
+          "source": "fixture:a:2024"
+        },
+        "origin": "shrunk"
+      },
+      "category": "value_mismatch",
+      "expected": {
+        "status": "ok",
+        "value": "-0.5",
+        "sources": [
+          "fixture:a:2024",
+          "fixture:a:2025"
+        ]
+      },
+      "actual": {
+        "status": "ok",
+        "value": "-1",
+        "sources": [
+          "fixture:a:2024",
+          "fixture:a:2025"
+        ]
+      }
+    },
+    "attempts": 80,
+    "budget": 80,
+    "changed": true
+  },
+  "chart": {
+    "title": "营业收入同比 · 虚构样本",
+    "unit": "%",
+    "points": [
+      {
+        "label": "青禾（虚构） 2025",
+        "value": "25.00",
+        "status": "ok",
+        "sources": [
+          "fixture:a:2024",
+          "fixture:a:2025"
+        ]
+      },
+      {
+        "label": "澄海（虚构） 2025",
+        "value": "5.00",
+        "status": "ok",
+        "sources": [
+          "fixture:b:2024",
+          "fixture:b:2025"
+        ]
+      },
+      {
+        "label": "单位样本（虚构） 2025",
+        "value": "25.00",
+        "status": "ok",
+        "sources": [
+          "fixture:mixed:2024",
+          "fixture:mixed:2025"
+        ]
+      },
+      {
+        "label": "零收入样本 2025",
+        "value": "-100.00",
+        "status": "ok",
+        "sources": [
+          "fixture:zero",
+          "fixture:zero:previous"
+        ]
+      },
+      {
+        "label": "零基数样本 2025",
+        "value": null,
+        "status": "nonpositive_base",
+        "sources": []
+      },
+      {
+        "label": "亏损样本 2025",
+        "value": "-16.67",
+        "status": "ok",
+        "sources": [
+          "fixture:loss",
+          "fixture:loss:previous"
+        ]
+      },
+      {
+        "label": "负现金流样本 2025",
+        "value": "-16.67",
+        "status": "ok",
+        "sources": [
+          "fixture:negative-cash",
+          "fixture:negative-cash:previous"
+        ]
+      }
+    ]
+  },
+  "tool_calls": 8,
+  "model_turns": 0,
+  "usage": {},
+  "data_version": "metricforge-fictional-v1",
+  "case_count": 48,
+  "seed": 20261012,
+  "error": null,
+  "elapsed_ms": 7.081,
+  "disclaimer": "财务数据及公司为虚构教学样本；replay为固定策略，不是模型效果评测。"
+}

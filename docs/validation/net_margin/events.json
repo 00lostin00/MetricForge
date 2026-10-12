@@ -1,0 +1,429 @@
+[
+  {
+    "event": "tool.started",
+    "payload": {
+      "name": "describe_contract",
+      "arguments": {}
+    }
+  },
+  {
+    "event": "tool.completed",
+    "payload": {
+      "name": "describe_contract",
+      "result": {
+        "metric_id": "net_margin",
+        "title": "净利率",
+        "definition": "当期合并口径净利润除以营业收入；返回比率，展示时乘100并标记%",
+        "required_fields": [
+          "net_profit",
+          "revenue"
+        ],
+        "lookback": 0,
+        "domain": "收入须为正；允许净利润为负；缺字段不以0替代；年度/CNY/合并口径",
+        "output_unit": "%",
+        "source": "teaching-contract:net_margin:v1"
+      }
+    }
+  },
+  {
+    "event": "tool.started",
+    "payload": {
+      "name": "propose_metric",
+      "arguments": {
+        "expression": "safe_div(revenue, net_profit)",
+        "reason": "固定演示策略：先提出含已知缺陷的候选以展示验证流程"
+      }
+    }
+  },
+  {
+    "event": "tool.completed",
+    "payload": {
+      "name": "propose_metric",
+      "result": {
+        "id": "candidate-1",
+        "expression": "safe_div(revenue, net_profit)",
+        "reason": "固定演示策略：先提出含已知缺陷的候选以展示验证流程",
+        "compiled": true,
+        "dependencies": [
+          "net_profit",
+          "revenue"
+        ],
+        "dimension": 0,
+        "node_count": 8,
+        "diagnostics": [],
+        "validation": null
+      }
+    }
+  },
+  {
+    "event": "tool.started",
+    "payload": {
+      "name": "validate_candidate",
+      "arguments": {
+        "candidate_id": "candidate-1"
+      }
+    }
+  },
+  {
+    "event": "tool.completed",
+    "payload": {
+      "name": "validate_candidate",
+      "result": {
+        "compiled": true,
+        "diagnostics": [],
+        "total": 48,
+        "passed": 16,
+        "failures": [
+          {
+            "case": {
+              "id": "normal-a",
+              "current": {
+                "company": "青禾（虚构）",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "15000",
+                "net_profit": "1500",
+                "operating_cashflow": "1750",
+                "source": "fixture:a:2025"
+              },
+              "previous": {
+                "company": "青禾（虚构）",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "12000",
+                "net_profit": "1080",
+                "operating_cashflow": "1350",
+                "source": "fixture:a:2024"
+              },
+              "origin": "fixed"
+            },
+            "category": "value_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "0.1",
+              "sources": [
+                "fixture:a:2025"
+              ]
+            },
+            "actual": {
+              "status": "ok",
+              "value": "10",
+              "sources": [
+                "fixture:a:2025"
+              ]
+            }
+          },
+          {
+            "case": {
+              "id": "normal-b",
+              "current": {
+                "company": "澄海（虚构）",
+                "year": 2025,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "21000",
+                "net_profit": "840",
+                "operating_cashflow": "1050",
+                "source": "fixture:b:2025"
+              },
+              "previous": {
+                "company": "澄海（虚构）",
+                "year": 2024,
+                "currency": "CNY",
+                "unit": "CNY_10K",
+                "scope": "consolidated",
+                "revenue": "20000",
+                "net_profit": "1000",
+                "operating_cashflow": "1200",
+                "source": "fixture:b:2024"
+              },
+              "origin": "fixed"
+            },
+            "category": "value_mismatch",
+            "expected": {
+              "status": "ok",
+              "value": "0.04",
+              "sources": [
+                "fixture:b:2025"
+              ]
+            },
+            "actual": {
+              "status": "ok",
+              "value": "25",
+              "sources": [
+                "fixture:b:2025"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "event": "tool.started",
+    "payload": {
+      "name": "minimize_failure",
+      "arguments": {
+        "candidate_id": "candidate-1"
+      }
+    }
+  },
+  {
+    "event": "tool.completed",
+    "payload": {
+      "name": "minimize_failure",
+      "result": {
+        "original": {
+          "case": {
+            "id": "normal-a",
+            "current": {
+              "company": "青禾（虚构）",
+              "year": 2025,
+              "currency": "CNY",
+              "unit": "CNY_10K",
+              "scope": "consolidated",
+              "revenue": "15000",
+              "net_profit": "1500",
+              "operating_cashflow": "1750",
+              "source": "fixture:a:2025"
+            },
+            "previous": {
+              "company": "青禾（虚构）",
+              "year": 2024,
+              "currency": "CNY",
+              "unit": "CNY_10K",
+              "scope": "consolidated",
+              "revenue": "12000",
+              "net_profit": "1080",
+              "operating_cashflow": "1350",
+              "source": "fixture:a:2024"
+            },
+            "origin": "fixed"
+          },
+          "category": "value_mismatch",
+          "expected": {
+            "status": "ok",
+            "value": "0.1",
+            "sources": [
+              "fixture:a:2025"
+            ]
+          },
+          "actual": {
+            "status": "ok",
+            "value": "10",
+            "sources": [
+              "fixture:a:2025"
+            ]
+          }
+        },
+        "reduced": {
+          "case": {
+            "id": "normal-a",
+            "current": {
+              "company": "青禾（虚构）",
+              "year": 2025,
+              "currency": "CNY",
+              "unit": "CNY_10K",
+              "scope": "consolidated",
+              "revenue": "0.00048828125",
+              "net_profit": "0.0009765625",
+              "operating_cashflow": null,
+              "source": "fixture:a:2025"
+            },
+            "previous": {
+              "company": "青禾（虚构）",
+              "year": 2024,
+              "currency": "CNY",
+              "unit": "CNY_10K",
+              "scope": "consolidated",
+              "revenue": null,
+              "net_profit": null,
+              "operating_cashflow": null,
+              "source": "fixture:a:2024"
+            },
+            "origin": "shrunk"
+          },
+          "category": "value_mismatch",
+          "expected": {
+            "status": "ok",
+            "value": "2",
+            "sources": [
+              "fixture:a:2025"
+            ]
+          },
+          "actual": {
+            "status": "ok",
+            "value": "0.5",
+            "sources": [
+              "fixture:a:2025"
+            ]
+          }
+        },
+        "attempts": 80,
+        "budget": 80,
+        "changed": true
+      }
+    }
+  },
+  {
+    "event": "tool.started",
+    "payload": {
+      "name": "propose_metric",
+      "arguments": {
+        "expression": "safe_div(net_profit, revenue)",
+        "reason": "固定演示策略：应用预先定义的正确表达式"
+      }
+    }
+  },
+  {
+    "event": "tool.completed",
+    "payload": {
+      "name": "propose_metric",
+      "result": {
+        "id": "candidate-2",
+        "expression": "safe_div(net_profit, revenue)",
+        "reason": "固定演示策略：应用预先定义的正确表达式",
+        "compiled": true,
+        "dependencies": [
+          "net_profit",
+          "revenue"
+        ],
+        "dimension": 0,
+        "node_count": 8,
+        "diagnostics": [],
+        "validation": null
+      }
+    }
+  },
+  {
+    "event": "tool.started",
+    "payload": {
+      "name": "validate_candidate",
+      "arguments": {
+        "candidate_id": "candidate-2"
+      }
+    }
+  },
+  {
+    "event": "tool.completed",
+    "payload": {
+      "name": "validate_candidate",
+      "result": {
+        "compiled": true,
+        "diagnostics": [],
+        "total": 48,
+        "passed": 48,
+        "failures": []
+      }
+    }
+  },
+  {
+    "event": "tool.started",
+    "payload": {
+      "name": "preview_chart",
+      "arguments": {
+        "candidate_id": "candidate-2"
+      }
+    }
+  },
+  {
+    "event": "tool.completed",
+    "payload": {
+      "name": "preview_chart",
+      "result": {
+        "title": "净利率 · 虚构样本",
+        "unit": "%",
+        "points": [
+          {
+            "label": "青禾（虚构） 2025",
+            "value": "10.00",
+            "status": "ok",
+            "sources": [
+              "fixture:a:2025"
+            ]
+          },
+          {
+            "label": "澄海（虚构） 2025",
+            "value": "4.00",
+            "status": "ok",
+            "sources": [
+              "fixture:b:2025"
+            ]
+          },
+          {
+            "label": "单位样本（虚构） 2025",
+            "value": "10.00",
+            "status": "ok",
+            "sources": [
+              "fixture:mixed:2025"
+            ]
+          },
+          {
+            "label": "零收入样本 2025",
+            "value": null,
+            "status": "nonpositive_base",
+            "sources": []
+          },
+          {
+            "label": "零基数样本 2025",
+            "value": "10.00",
+            "status": "ok",
+            "sources": [
+              "fixture:baseline"
+            ]
+          },
+          {
+            "label": "亏损样本 2025",
+            "value": "-10.00",
+            "status": "ok",
+            "sources": [
+              "fixture:loss"
+            ]
+          },
+          {
+            "label": "负现金流样本 2025",
+            "value": "10.00",
+            "status": "ok",
+            "sources": [
+              "fixture:negative-cash"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "event": "tool.started",
+    "payload": {
+      "name": "accept_candidate",
+      "arguments": {
+        "candidate_id": "candidate-2"
+      }
+    }
+  },
+  {
+    "event": "delivery.accepted",
+    "payload": {
+      "candidate_id": "candidate-2"
+    }
+  },
+  {
+    "event": "tool.completed",
+    "payload": {
+      "name": "accept_candidate",
+      "result": {
+        "compiled": true,
+        "diagnostics": [],
+        "total": 48,
+        "passed": 48,
+        "failures": [],
+        "accepted": true
+      }
+    }
+  }
+]

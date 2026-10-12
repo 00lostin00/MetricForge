@@ -1,0 +1,52 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MetricForge指标交付报告</title><style>
+body{background:#edf3f8;color:#18324b;font:16px/1.75 'Microsoft YaHei',sans-serif;margin:0}
+main{max-width:1100px;margin:30px auto;padding:32px;background:white;border-radius:14px}
+h1{color:#155a78}article{border:1px solid #cbdbe8;border-radius:8px;padding:16px;margin:16px 0}
+pre{background:#122c43;color:#e4edf6;padding:16px;white-space:pre-wrap;overflow-wrap:anywhere}
+.stats{display:flex;gap:18px;flex-wrap:wrap}
+.stats div{background:#e7f0f5;padding:14px;border-radius:8px}
+img{width:100%;height:auto}.note{background:#fff4d9;padding:14px}
+@media(max-width:700px){main{margin:0;padding:20px}}
+</style></head><body><main><h1>MetricForge · 指标交付报告</h1><p>净利率</p><div class="stats"><div>验收：accepted</div><div>模式：replay</div><div>候选：2</div><div>工具调用：8</div></div><p class="note">财务数据及公司为虚构教学样本；replay为固定策略，不是模型效果评测。</p><h2>业务契约</h2><p>当期合并口径净利润除以营业收入；返回比率，展示时乘100并标记%</p><p>收入须为正；允许净利润为负；缺字段不以0替代；年度/CNY/合并口径</p><h2>候选与验证</h2><article><h3>candidate-1 · 16/48</h3><pre>safe_div(revenue, net_profit)</pre><p>固定演示策略：先提出含已知缺陷的候选以展示验证流程</p><p>依赖：net_profit, revenue</p></article><article><h3>candidate-2 · 48/48</h3><pre>safe_div(net_profit, revenue)</pre><p>固定演示策略：应用预先定义的正确表达式</p><p>依赖：net_profit, revenue</p></article><h2>缩减后的反例</h2><pre>{
+  &quot;case&quot;: {
+    &quot;id&quot;: &quot;normal-a&quot;,
+    &quot;current&quot;: {
+      &quot;company&quot;: &quot;青禾（虚构）&quot;,
+      &quot;year&quot;: 2025,
+      &quot;currency&quot;: &quot;CNY&quot;,
+      &quot;unit&quot;: &quot;CNY_10K&quot;,
+      &quot;scope&quot;: &quot;consolidated&quot;,
+      &quot;revenue&quot;: &quot;0.00048828125&quot;,
+      &quot;net_profit&quot;: &quot;0.0009765625&quot;,
+      &quot;operating_cashflow&quot;: null,
+      &quot;source&quot;: &quot;fixture:a:2025&quot;
+    },
+    &quot;previous&quot;: {
+      &quot;company&quot;: &quot;青禾（虚构）&quot;,
+      &quot;year&quot;: 2024,
+      &quot;currency&quot;: &quot;CNY&quot;,
+      &quot;unit&quot;: &quot;CNY_10K&quot;,
+      &quot;scope&quot;: &quot;consolidated&quot;,
+      &quot;revenue&quot;: null,
+      &quot;net_profit&quot;: null,
+      &quot;operating_cashflow&quot;: null,
+      &quot;source&quot;: &quot;fixture:a:2024&quot;
+    },
+    &quot;origin&quot;: &quot;shrunk&quot;
+  },
+  &quot;category&quot;: &quot;value_mismatch&quot;,
+  &quot;expected&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;value&quot;: &quot;2&quot;,
+    &quot;sources&quot;: [
+      &quot;fixture:a:2025&quot;
+    ]
+  },
+  &quot;actual&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;value&quot;: &quot;0.5&quot;,
+    &quot;sources&quot;: [
+      &quot;fixture:a:2025&quot;
+    ]
+  }
+}</pre><h2>验收后的图表</h2><img src="chart.svg" alt="指标图表预览"><p>数据版本：metricforge-fictional-v1；种子：20261012；用例：48</p><p><a href="delivery.json">完整JSON与每条验证失败</a></p></main></body></html>

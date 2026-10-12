@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="425" viewBox="0 0 1100 425" role="img">
+<rect width="100%" height="100%" fill="#f4f8fb"/>
+<title>经营现金净利润比 · 虚构样本</title>
+<text x="20" y="30" font-size="20">经营现金净利润比 · 虚构样本 / 倍</text>
+<text x="20" y="81" font-size="14">青禾（虚构） 2025</text>
+<rect x="550.00" y="65" width="168.48" height="22" fill="#226d91"/>
+<text x="770" y="81" font-size="14">1.17倍</text>
+<text x="20" y="126" font-size="14">澄海（虚构） 2025</text>
+<rect x="550.00" y="110" width="180.00" height="22" fill="#226d91"/>
+<text x="770" y="126" font-size="14">1.25倍</text>
+<text x="20" y="171" font-size="14">单位样本（虚构） 2025</text>
+<rect x="550.00" y="155" width="168.48" height="22" fill="#226d91"/>
+<text x="770" y="171" font-size="14">1.17倍</text>
+<text x="20" y="216" font-size="14">零收入样本 2025</text>
+<rect x="550.00" y="200" width="72.00" height="22" fill="#226d91"/>
+<text x="770" y="216" font-size="14">0.50倍</text>
+<text x="20" y="261" font-size="14">零基数样本 2025</text>
+<rect x="550.00" y="245" width="72.00" height="22" fill="#226d91"/>
+<text x="770" y="261" font-size="14">0.50倍</text>
+<text x="20" y="306" font-size="14">亏损样本 2025</text>
+<text x="770" y="306" font-size="14">无数值：nonpositive_base</text>
+<text x="20" y="351" font-size="14">负现金流样本 2025</text>
+<rect x="478.00" y="335" width="72.00" height="22" fill="#b24646"/>
+<text x="770" y="351" font-size="14">-0.50倍</text>
+<line x1="550" y1="50" x2="550" y2="390" stroke="#8899aa"/>
+<text x="20" y="413" font-size="12">数据为虚构样本；缺失与不支持口径单独标记，负值向左。</text>
+</svg>
