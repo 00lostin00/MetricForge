@@ -1,4 +1,5 @@
 /* The console uses three engineering panes; the base sheet retains form utilities. */
+.status-badge.accepted,.candidate.accepted .candidate-badge{background:#174234;color:#adf1cb}.status-badge.rejected{background:#42262e;color:#f0ada8}
 .contract-preview p,.candidate p,.event-top strong{font-size:11px!important}.candidate pre{font-size:12px!important}.candidate-top strong,.candidate-stats,.field-label,.mode-note{font-size:10px!important}.data-note p,.history-note,.trace-note,.chart-note{font-size:10px!important}
 :root{color-scheme:dark;--paper:#0b1119;--card:#111b27;--ink:#dce6f2;--muted:#8c9cb0;--line:#263548;--green:#74d7b2;--light:#142d2a;--amber:#e5b479;--red:#f28b82;--radius:5px}
 body{font-family:"Segoe UI","Microsoft YaHei",sans-serif;font-size:13px;background:var(--paper);color:var(--ink)}

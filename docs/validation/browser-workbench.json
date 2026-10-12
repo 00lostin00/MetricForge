@@ -12,6 +12,7 @@
   ],
   "javascript_errors": [],
   "date": "2026-10-12",
+  "interface": "dark validation console: contract, candidate and event panes",
   "desktop_viewport": [
     1440,
     1080
@@ -20,9 +21,5 @@
     390,
     844
   ],
-  "error_check": "HTTP 429 injected in browser to verify UI recovery; not server throughput testing",
-  "screenshot_files": [
-    "docs/screenshots/workbench.png",
-    "docs/screenshots/mobile.png"
-  ]
+  "error_check": "HTTP 429 injected in browser to verify UI recovery; not throughput testing"
 }
