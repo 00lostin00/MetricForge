@@ -1202,6 +1202,6 @@
   "case_count": 48,
   "seed": 20261012,
   "error": null,
-  "elapsed_ms": 7.081,
+  "elapsed_ms": 7.071,
   "disclaimer": "财务数据及公司为虚构教学样本；replay为固定策略，不是模型效果评测。"
 }

@@ -5,11 +5,21 @@ from typing import Annotated
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import Field
 
+from .contracts import CONTRACTS
 from .models import RunRequest
 from .service import CapacityError, JobService
 from .store import IdempotencyConflict
+
+
+class WorkbenchFiles(StaticFiles):
+    async def get_response(self, path: str, scope):
+        response = await super().get_response(path, scope)
+        if path.endswith(".svg") and response.status_code == 200:
+            response.headers["content-type"] = "image/svg+xml"
+        return response
 
 
 def create_app(root: Path | None = None, directory: Path | None = None) -> FastAPI:
@@ -23,6 +33,24 @@ def create_app(root: Path | None = None, directory: Path | None = None) -> FastA
         app.state.service.close()
 
     app = FastAPI(title="MetricForge指标交付Agent", version="0.1.0", lifespan=lifespan)
+    web_directory = Path(__file__).with_name("web")
+    app.mount("/static", WorkbenchFiles(directory=web_directory), name="static")
+
+    @app.get("/", include_in_schema=False)
+    def workbench():
+        return FileResponse(web_directory / "index.html")
+
+    @app.get("/v1/capabilities")
+    def capabilities():
+        return {
+            "metrics": [contract.model_dump() for contract in CONTRACTS.values()],
+            "default_provider": "replay",
+            "llm_configured": bool(
+                os.getenv("OPENAI_API_KEY") and os.getenv("METRICFORGE_MODEL")
+            ),
+            "generated_cases_limit": 128,
+            "data": "fictional",
+        }
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -65,7 +93,7 @@ def create_app(root: Path | None = None, directory: Path | None = None) -> FastA
         path = request.app.state.service.directory / "artifacts" / run_id / filename
         if not path.is_file():
             raise HTTPException(404, "artifact not ready")
-        return FileResponse(path)
+        return FileResponse(path, media_type="image/svg+xml" if filename == "chart.svg" else None)
 
     return app
 

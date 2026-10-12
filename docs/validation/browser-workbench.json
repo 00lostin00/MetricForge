@@ -1,0 +1,28 @@
+{
+  "project": "MetricForge",
+  "checks": [
+    "queue error and retry",
+    "revenue_yoy",
+    "net_margin",
+    "cash_conversion",
+    "history restore",
+    "JSON download",
+    "desktop layout",
+    "mobile result flow"
+  ],
+  "javascript_errors": [],
+  "date": "2026-10-12",
+  "desktop_viewport": [
+    1440,
+    1080
+  ],
+  "mobile_viewport": [
+    390,
+    844
+  ],
+  "error_check": "HTTP 429 injected in browser to verify UI recovery; not server throughput testing",
+  "screenshot_files": [
+    "docs/screenshots/workbench.png",
+    "docs/screenshots/mobile.png"
+  ]
+}

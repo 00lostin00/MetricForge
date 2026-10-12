@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#126e58">
+  <title>MetricForge · 指标交付工作台</title>
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
+  <link rel="stylesheet" href="/static/style.css">
+  <script defer src="/static/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#workspace">跳转到工作台</a>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="MetricForge 首页"><img src="/static/logo.svg" width="38" height="38" alt=""><span>MetricForge<small>指标交付工作台</small></span></a>
+    <nav aria-label="主导航"><a class="active" href="#workspace">工作台</a><a href="#trace">执行轨迹</a><a href="/docs" target="_blank" rel="noopener">API 文档 <span aria-hidden="true">↗</span></a></nav>
+    <span class="connection" id="connection"><i></i>连接中</span>
+  </header>
+  <main id="workspace">
+    <section class="intro">
+      <div><p class="eyebrow">METRIC DELIVERY / 工作空间</p><h1>让每个指标，<span>都有验证依据。</span></h1><p class="intro-copy">从指标契约到候选表达式，再到反例、修订与交付。<br>把计算口径和验证过程放在同一张工作台上。</p></div>
+      <div class="mini-flow" aria-label="处理流程"><span>01 <b>契约</b></span><i>→</i><span>02 <b>验证</b></span><i>→</i><span class="last">03 <b>交付</b></span></div>
+    </section>
+    <div class="workspace-grid">
+      <aside class="left-column">
+        <section class="panel request-panel" aria-labelledby="request-title">
+          <div class="panel-heading"><div><span class="section-tag">01 / DEFINE</span><h2 id="request-title">定义交付任务</h2></div><span class="tiny-label">3 个指标契约</span></div>
+          <form id="job-form">
+            <label class="field-label" for="metric">选择指标</label>
+            <div class="metric-options" role="group" aria-label="指标快捷选择">
+              <button type="button" class="metric-option selected" data-metric="revenue_yoy"><span>↗</span>收入同比</button>
+              <button type="button" class="metric-option" data-metric="net_margin"><span>％</span>销售净利率</button>
+              <button type="button" class="metric-option" data-metric="cash_conversion"><span>⇄</span>现金转化率</button>
+            </div>
+            <select id="metric" name="metric_id" class="sr-only" aria-label="指标"><option value="revenue_yoy">营业收入同比</option><option value="net_margin">销售净利率</option><option value="cash_conversion">现金转化率</option></select>
+            <div class="contract-preview"><span class="preview-label">指标口径</span><p id="contract-definition">加载指标契约…</p><span id="contract-unit" class="unit-note"></span></div>
+            <label class="field-label" for="requirement">研发需求 <span>可编辑</span></label>
+            <textarea id="requirement" name="requirement" minlength="4" maxlength="800" rows="4" required>新增营业收入同比指标，核对跨年口径、金额单位、缺失期和非正基期，验收后交付趋势图。</textarea>
+            <div class="form-row"><label for="provider">执行方式</label><select id="provider" name="provider"><option value="replay">Replay · 可复现演示</option><option value="llm" disabled>LLM · 服务端未配置</option></select></div>
+            <p class="mode-note" id="mode-note">固定策略提出候选，调用真实编译、验证与反例工具。无需 API Key。</p>
+            <details class="advanced"><summary>验证参数 <span>种子 / 样本数</span></summary><div class="advanced-grid"><label for="seed">随机种子<input id="seed" type="number" value="20261012" min="0" max="2147483647" step="1" required></label><label for="generated-cases">生成样本数<input id="generated-cases" type="number" value="32" min="0" max="128" step="1" required></label></div><p>在固定边界样本之外增加种子生成样本，最多 128 个。</p></details>
+            <button type="submit" class="primary-button" id="submit"><span class="button-icon" aria-hidden="true">▶</span><span id="submit-label">开始验证与交付</span><span aria-hidden="true">↗</span></button>
+            <p class="inline-error" id="form-error" role="alert" hidden></p>
+          </form>
+          <div class="data-note"><span aria-hidden="true">◈</span><p>内置数据为虚构财务样本。Replay 用于复现工具流程，实际模型表现需要单独评测。</p></div>
+        </section>
+        <section class="panel history-panel" aria-labelledby="history-title"><div class="panel-heading small"><div><span class="section-tag">LOCAL HISTORY</span><h2 id="history-title">最近任务</h2></div><button id="clear-history" type="button" class="text-button">清空</button></div><p class="history-note">仅保存在当前浏览器，点击可恢复结果。</p><div id="history-list" class="history-list"><p class="muted">暂无记录，提交第一个任务后会出现在这里。</p></div></section>
+      </aside>
+      <section class="right-column" aria-labelledby="delivery-title">
+        <div class="panel delivery-panel">
+          <div class="panel-heading"><div><span class="section-tag">02 / VERIFY & DELIVER</span><h2 id="delivery-title">验证与交付</h2></div><span id="status-badge" class="status-badge neutral">等待任务</span></div>
+          <div class="run-meta" id="run-meta" hidden><code id="run-id"></code><span id="run-provider"></span><button class="text-button" id="poll-toggle" type="button" hidden>暂停刷新</button></div>
+          <div class="progress-track" aria-label="任务阶段"><span data-stage="0">读取契约</span><span data-stage="1">候选验证</span><span data-stage="2">反例修订</span><span data-stage="3">验收交付</span></div>
+          <p class="inline-error" id="run-error" role="alert" hidden></p>
+          <div id="empty-state" class="empty-state"><div class="empty-art" aria-hidden="true"><span class="art-line"></span><span class="art-node node-a">ƒ</span><span class="art-node node-b">✓</span><span class="art-node node-c">↗</span></div><h3>交付之前，先把口径验清楚</h3><p>从左侧发起任务，查看错误候选怎样被发现，<br>再跟踪反例缩减、表达式修订与最终交付。</p><div class="empty-pill"><i></i> 默认流程无需 Key，即可完整运行</div></div>
+          <div id="running-state" class="running-state" hidden><div class="spinner" aria-hidden="true"></div><div><h3 id="running-title">任务已提交</h3><p id="running-description">正在获取后台执行结果…</p></div></div>
+          <div id="result" hidden>
+            <div class="summary-grid"><div><span>验收样本</span><strong id="case-count">—</strong><small>固定 + 种子生成</small></div><div><span>工具调用</span><strong id="tool-count">—</strong><small>每次运行独立计数</small></div><div><span>候选版本</span><strong id="candidate-count">—</strong><small>最多 3 个候选</small></div><div><span>后台耗时</span><strong id="elapsed">—</strong><small>本次运行实测</small></div></div>
+            <div class="result-heading"><h3>候选表达式</h3><span>编译 → 参考比对 → 验收</span></div><div id="candidates" class="candidates"></div>
+            <section id="counterexample" class="counterexample" hidden><div class="result-heading"><h3>反例缩减</h3><span id="shrink-budget"></span></div><p id="shrink-caption"></p><div class="counter-grid"><div><span class="preview-label">期望结果</span><strong id="expected-value"></strong></div><div><span class="preview-label">候选结果</span><strong id="actual-value"></strong></div></div><details><summary>查看最小反例的输入与来源</summary><pre id="shrink-json"></pre></details></section>
+            <section class="chart-section" id="chart-section" hidden><div class="result-heading"><h3 id="chart-title">指标图表</h3><span id="chart-unit"></span></div><div class="chart-frame"><img id="chart" alt="最终验收表达式在虚构样本上的指标图表" loading="lazy"></div><p class="chart-note">图表来自本次验收表达式；缺失、跨期或口径不一致的样本保留状态，不填补数值。</p></section>
+            <div class="downloads" id="downloads"><a id="report-link" class="download-primary" target="_blank" rel="noopener">查看完整报告 ↗</a><a id="json-link" download="delivery.json">交付 JSON ↓</a><a id="svg-link" download="chart.svg" hidden>图表 SVG ↓</a></div>
+          </div>
+        </div>
+        <section class="panel trace-panel" id="trace" aria-labelledby="trace-title"><div class="panel-heading small"><div><span class="section-tag">03 / TRACE</span><h2 id="trace-title">执行轨迹</h2></div><span id="event-count" class="tiny-label">0 条事件</span></div><p class="trace-note">来自后台真实事件日志，可展开工具输入与返回摘要。</p><ol id="events" class="events"><li class="muted trace-empty">任务开始后，工具调用会按执行顺序出现在这里。</li></ol></section>
+      </section>
+    </div>
+  </main>
+  <footer><span>MetricForge <b>·</b> 每个指标，都有依据</span><span>受约束 DSL / Decimal 计算 / 独立参考验证</span></footer>
+</body>
+</html>
