@@ -1,10 +1,10 @@
 # MetricForge本地验证记录
 
-日期2026-10-12。环境Windows、Python3.12.7，依赖按uv.lock。
+日期2026-10-14。环境Windows、Python3.12.7，依赖按uv.lock。
 
 | 检查 | 结果 | 可复现命令 |
 | --- | --- | --- |
-| 自动化测试 | 75项通过 | `uv run --frozen --all-extras pytest` |
+| 自动化测试 | 80项通过 | `uv run --frozen --all-extras pytest` |
 | Ruff | 通过 | `uv run --frozen --all-extras ruff check .` |
 | 预设正确表达式参考比对 | 1440/1440通过 | `uv run --frozen --all-extras python tools/evaluate.py` |
 | 预定义缺陷集合 | 17/17检出：4静态、13语义 | 同上 |

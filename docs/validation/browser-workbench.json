@@ -7,12 +7,19 @@
     "cash_conversion",
     "history restore",
     "JSON download",
+    "candidate copy and diagnosis",
+    "history clear undo",
+    "run and trace URL restore",
     "desktop layout",
-    "mobile result flow"
+    "mobile result flow",
+    "running result stays pending until final job state",
+    "shared run restores from server without browser history",
+    "mobile metric chart scrolls with keyboard without page overflow"
   ],
   "javascript_errors": [],
-  "date": "2026-10-12",
-  "interface": "dark validation console: contract, candidate and event panes",
+  "date": "2026-10-14",
+  "browser": "Chrome",
+  "interface": "契约输入、候选公式并排验证、底部可展开执行轨迹",
   "desktop_viewport": [
     1440,
     1080
@@ -21,5 +28,11 @@
     390,
     844
   ],
-  "error_check": "HTTP 429 injected in browser to verify UI recovery; not throughput testing"
+  "additional_widths": [
+    320,
+    768,
+    1024
+  ],
+  "error_check": "HTTP 429 injected in browser to verify UI recovery; not throughput testing",
+  "pending_result_check": "running response with an existing result injected to verify final-state display"
 }
